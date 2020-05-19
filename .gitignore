@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# Autoconf files
+config.log
+autom4te.cache/*
+Makefile
+config.status
+
+# VS Code files
+.vscode/*
