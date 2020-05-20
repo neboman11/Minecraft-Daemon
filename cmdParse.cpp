@@ -22,14 +22,14 @@ map<int, string> cmdParse(int argc, char** argv)
   try
   {
     // The main command line object for parsing the command line
-    TCLAP::CmdLine cmd("CS3377 Program 5", ' ', "1.0");
+    TCLAP::CmdLine cmd("Minecraft Daemon", ' ', "0.1");
 
     // Whether or not to run as a daemon
     TCLAP::SwitchArg daemon("d", "daemon", "Run in daemon mode (forks to run as a daemon).", false);
     cmd.add(daemon);
 
     // The file name for the config file
-    TCLAP::UnlabeledValueArg<string> confFile("config-filename", "The name of the configuration file. Defaults to cs3377dirmond.conf", false, "cs3377dirmond.conf", "config filename", false);
+    TCLAP::UnlabeledValueArg<string> confFile("config-filename", "The name of the configuration file. Defaults to minecraft-daemon.conf", false, "minecraft-daemon.conf", "config filename", false);
     cmd.add(confFile);
 
     // Reparse the command line arguments for the given flags
