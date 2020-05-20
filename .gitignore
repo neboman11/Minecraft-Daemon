@@ -30,6 +30,7 @@
 *.exe
 *.out
 *.app
+Minecraft-Daemon
 
 # Autoconf files
 config.log
@@ -39,3 +40,7 @@ config.status
 
 # VS Code files
 .vscode/*
+
+# Extra test files
+*.log
+*.conf
