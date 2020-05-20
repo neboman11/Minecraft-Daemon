@@ -14,7 +14,8 @@
 #ifndef __READCONFIG_H_
 #define __READCONFIG_H_
 
-#include <tao/config.hpp>
+// #include <tao/config.hpp>
+#include <rude/config.h>
 #include <iostream>
 #include <cstdlib>
 #include "main.h"
