@@ -17,6 +17,7 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <vector>
 #include <limits.h>
 
 using namespace std;
@@ -26,11 +27,12 @@ using namespace std;
 
 // Enumerator for readable map indexing
 enum flagOptions { DAEMON, CONFIG };
-enum configEnum { VERBOSE, LOG_FILE, PASSWORD, NUM_VERSIONS, WATCH_DIR };
+enum configEnum { VERBOSE, LOG_FILE, JAVA_PATH };
 
 // Global Variables
 extern ofstream* logFile;
 extern map<int, string> inputOptions;
 extern map<int, string> configOptions;
+extern vector<int**> serverPipes;
 
 #endif // __MAIN_H_
