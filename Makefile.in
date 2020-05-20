@@ -1,7 +1,7 @@
 #
-# Filename:		Makefile
+# Filename:		Makefile.in
 # Date:			02/24/2019
-# Author:		Stephen Perkins, Michael Nesbitt
+# Author:		Michael Nesbitt
 # Email:		man170530@utdallas.edu
 # Version:		1.1
 # Copyright:		2020, All Rights Reserved
@@ -25,7 +25,8 @@ CPPFLAGS =
 CXXFLAGS = -Werror -Wall -std=c++17
 
 # linker flags
-LDFLAGS =
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ -lrudeconfig
 
 
 # Project name.  This is used in building the file name for the backup target
@@ -35,7 +36,7 @@ PROJECTNAME = Minecraft-Daemon
 # Enter the names of the C++ source files that you want to compile
 # with this project
 
-SRCS = main.cpp cmdParse.cpp commandFunc.cpp helperFunc.cpp loggingFunc.cpp readConfig.cpp signalHandling.cpp
+SRCS = main.cpp cmdParse.cpp commandFunc.cpp helperFunc.cpp loggingFunc.cpp readConfig.cpp signalHandling.cpp startServer.cpp
 
 # Enter the name for the executable to be created
 EXEC = Minecraft-Daemon
@@ -52,7 +53,7 @@ OBJS = $(SRCS:.cpp=.o)
 all: $(EXEC)
 
 clean:
-	rm -f $(OBJS) *.d *~ *.flac *.wav $(EXEC)
+	rm -f $(OBJS) *.d *~ *.log $(EXEC)
 
 
 # Pattern for .d files.
@@ -66,7 +67,7 @@ clean:
 
 #  This is a rule to link the files.  Pretty standard
 $(EXEC): $(OBJS)
-	$(CXX) -o $(EXEC) $(LDFLAGS) $(OBJS)
+	$(CXX) -o $(EXEC) $(LDFLAGS) $(OBJS) $(LIBS)
 
 Makefile: $(SRCS:.cpp=.d)
 
