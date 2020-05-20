@@ -4626,33 +4626,20 @@ fi
 
 done
 
-for ac_header in tao/json.hpp
+for ac_header in rude/config.h
 do :
-  ac_fn_cxx_check_header_mongrel "$LINENO" "tao/json.hpp" "ac_cv_header_tao_json_hpp" "$ac_includes_default"
-if test "x$ac_cv_header_tao_json_hpp" = xyes; then :
+  ac_fn_cxx_check_header_mongrel "$LINENO" "rude/config.h" "ac_cv_header_rude_config_h" "$ac_includes_default"
+if test "x$ac_cv_header_rude_config_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_TAO_JSON_HPP 1
+#define HAVE_RUDE_CONFIG_H 1
 _ACEOF
 
 else
-  as_fn_error $? "The Art of C++ / json is required for this project." "$LINENO" 5
+  as_fn_error $? "Rudeconfig is required for this project." "$LINENO" 5
 fi
 
 done
 
-for ac_header in tao/config.hpp
-do :
-  ac_fn_cxx_check_header_mongrel "$LINENO" "tao/config.hpp" "ac_cv_header_tao_config_hpp" "$ac_includes_default"
-if test "x$ac_cv_header_tao_config_hpp" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_TAO_CONFIG_HPP 1
-_ACEOF
-
-else
-  as_fn_error $? "The Art Of C++ / config is required for this project." "$LINENO" 5
-fi
-
-done
 
 
 ac_config_files="$ac_config_files Makefile"
