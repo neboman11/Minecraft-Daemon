@@ -22,7 +22,7 @@ CXX = g++
 CPPFLAGS = 
 
 # compiler flags
-CXXFLAGS = -Werror -Wall -std=c++17
+CXXFLAGS = -Werror -Wall -std=c++17 -g
 
 # linker flags
 LDFLAGS = @LDFLAGS@
