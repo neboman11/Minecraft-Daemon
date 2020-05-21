@@ -59,8 +59,10 @@ int main (int argc, char** argv)
         return status;
     }
 
+    writeLog("Attempting to spawn a child process that will print the java version.", true);
+
     char* testArgs[1];
-    testArgs[0] = (char*)"--version";
+    testArgs[0] = (char*)"-version";
 
     status = startServer(configOptions[JAVA_PATH], testArgs);
 
@@ -71,22 +73,37 @@ int main (int argc, char** argv)
         return status;
     }
 
+    writeLog("Printing stdout of child to log", true);
+
     // Array of characters to use as a buffer for reading from the pipe
     char buffer[BUFFER_SIZE];
     // Pointer to the currently read in line from the pipe
     ssize_t bytesRead;
 
+    sleep(5);
+
     // Read in the first buffer space of the pipe output
     bytesRead = read(serverPipes.at(0)[0][0], buffer, BUFFER_SIZE);
 
     // Loop until there is nothing more to be read from the buffer
-    while (bytesRead != 0)
+    while (bytesRead > 0)
     {
         // Add the contents of the current working line to the string stream
         writeLog(buffer);
         // Read in the next buffer space of the pipe output
         bytesRead = read(serverPipes.at(0)[0][0], buffer, BUFFER_SIZE);
+
+        if (bytesRead < 0)
+        {
+            writeLog("Error reading from pipe");
+            break;
+        }
     }
+
+    // Tell the user what's happening
+    writeLog("Exiting...");
+    // Remove the PID file
+    runCommand("rm -f minecraft-daemon.pid");
 
     // Close the log file just in case
     logFile->close();
