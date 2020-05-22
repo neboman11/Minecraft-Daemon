@@ -61,8 +61,11 @@ int main (int argc, char** argv)
 
     writeLog("Attempting to spawn a child process that will print the java version.", true);
 
-    char* testArgs[1];
-    testArgs[0] = (char*)"-version";
+    char* testArgs[2];
+    testArgs[0] = (char*)"java";
+    testArgs[1] = (char*)"-version";
+
+    vector<FILE*> pipeFiles;
 
     status = startServer(configOptions[JAVA_PATH], testArgs);
 
@@ -76,24 +79,27 @@ int main (int argc, char** argv)
     writeLog("Printing stdout of child to log", true);
 
     // Array of characters to use as a buffer for reading from the pipe
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFSIZ];
     // Pointer to the currently read in line from the pipe
-    ssize_t bytesRead;
+    char* workingLine;
 
-    sleep(5);
+    //sleep(5);
+
+    pipeFiles.push_back(fdopen(serverPipes.at(0)[0][0], "r"));
 
     // Read in the first buffer space of the pipe output
-    bytesRead = read(serverPipes.at(0)[0][0], buffer, BUFFER_SIZE);
+    workingLine = fgets(buffer, BUFSIZ, pipeFiles.at(0));
 
     // Loop until there is nothing more to be read from the buffer
-    while (bytesRead > 0)
+    while (workingLine > 0)
     {
         // Add the contents of the current working line to the string stream
-        writeLog(buffer);
+        writeLog(workingLine);
         // Read in the next buffer space of the pipe output
-        bytesRead = read(serverPipes.at(0)[0][0], buffer, BUFFER_SIZE);
+        workingLine = fgets(buffer, BUFSIZ, pipeFiles.at(0));
 
-        if (bytesRead < 0)
+        // If fgets returns a negative value, an error occured while reading from the pipe
+        if (workingLine < 0)
         {
             writeLog("Error reading from pipe");
             break;
@@ -105,11 +111,25 @@ int main (int argc, char** argv)
     // Remove the PID file
     runCommand("rm -f minecraft-daemon.pid");
 
+    // Close the files used for reading from the child pipes
+    for (auto file : pipeFiles)
+    {
+        fclose(file);
+    }
+
     // Close the log file just in case
     logFile->close();
 
     // Free memory just in case
     delete logFile;
+    for (auto pipe : serverPipes)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            delete[] pipe[i];
+        }
+        delete[] pipe;
+    }
 
     // Exit
     return 0;
