@@ -38,7 +38,17 @@ int startServer(string program, char* arguments[])
         //         row 1 - stdin pipe
         //         col 0 - read end of pipe
         //         col 1 - write end of pipe
-        int* serverPipe[] = { wpipefd, rpipefd };
+        int** serverPipe = new int*[2];
+
+        for (int i = 0; i < 2; i++)
+        {
+            serverPipe[i] = new int[2];
+        }
+
+        serverPipe[0][0] = wpipefd[0];
+        serverPipe[0][1] = wpipefd[1];
+        serverPipe[1][0] = rpipefd[0];
+        serverPipe[1][1] = rpipefd[1];
 
         writeLog("Added pipes to global vector", true);
         // Add 2D array to global array of server pipes
@@ -85,10 +95,19 @@ int startServer(string program, char* arguments[])
             // Duplicate the write pipe to stderr
             dup2(serverPipe[0][1], STDERR_FILENO);
 
-            // Int for keeping track of
+            // Int for keeping track of errors
             int status;
+
+            // Change working directory of child
+            status = chdir("/home/nesbitt/Downloads/testserver/");
+
+            if (status < 0)
+            {
+                exit(EXIT_FAILURE);
+            }
+
             //status = execv(program.c_str(), arguments);
-            status = execl(program.c_str(), "-version");
+            status = execl(program.c_str(), "java", "-jar", "/home/nesbitt/Downloads/testserver/server.jar", "nogui", (char*)0);
 
             if (status < 0)
             {
