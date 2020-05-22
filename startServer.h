@@ -18,6 +18,6 @@
 #include "main.h"
 #include "loggingFunc.h"
 
-int startServer(string command, char* arguments[]);
+int startServer(string command, char* arguments[], string workDir);
 
 #endif // __STARTSERVER_H_

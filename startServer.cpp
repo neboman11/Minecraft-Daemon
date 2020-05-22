@@ -1,6 +1,6 @@
 #include "startServer.h"
 
-int startServer(string program, char* arguments[])
+int startServer(string program, char* arguments[], string workDir)
 {
         // PID type for storing the process's PID
         pid_t mypid;
@@ -99,7 +99,7 @@ int startServer(string program, char* arguments[])
             int status;
 
             // Change working directory of child
-            status = chdir("/home/nesbitt/Downloads/testserver/");
+            status = chdir(workDir.c_str());
 
             if (status < 0)
             {
@@ -107,7 +107,7 @@ int startServer(string program, char* arguments[])
             }
 
             //status = execv(program.c_str(), arguments);
-            status = execl(program.c_str(), "java", "-jar", "/home/nesbitt/Downloads/testserver/server.jar", "nogui", (char*)0);
+            status = execl(program.c_str(), "java", "-jar", (workDir + "server.jar").c_str(), "nogui", (char*)0);
 
             if (status < 0)
             {
