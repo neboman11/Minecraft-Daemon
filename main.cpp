@@ -22,6 +22,7 @@
 #include "commandFunc.h"
 #include "helperFunc.h"
 #include "startServer.h"
+#include "serverLog.h"
 
 // Pointer to ofstream object that is the log file
 ofstream* logFile;
@@ -59,15 +60,15 @@ int main (int argc, char** argv)
         return status;
     }
 
-    writeLog("Attempting to spawn a child process that will print the java version.", true);
-
     char* testArgs[2];
     testArgs[0] = (char*)"java";
     testArgs[1] = (char*)"-version";
 
     vector<FILE*> pipeFiles;
 
-    status = startServer(configOptions[JAVA_PATH], testArgs);
+    string workDir = "/home/nesbitt/Downloads/testserver/";
+
+    status = startServer(configOptions[JAVA_PATH], testArgs, workDir);
 
     // If an error occurred during initialization
     if (status != 0)
@@ -78,12 +79,13 @@ int main (int argc, char** argv)
 
     writeLog("Printing stdout of child to log", true);
 
+    // PIPE STDOUT OF CHILD
+    // Server log object to hold output of child
+    ServerLog childLog;
     // Array of characters to use as a buffer for reading from the pipe
     char buffer[BUFSIZ];
     // Pointer to the currently read in line from the pipe
     char* workingLine;
-
-    //sleep(5);
 
     pipeFiles.push_back(fdopen(serverPipes.at(0)[0][0], "r"));
 
@@ -93,11 +95,14 @@ int main (int argc, char** argv)
     // Loop until there is nothing more to be read from the buffer
     while (workingLine > 0)
     {
+        // Remove newline from workingLine
+        trimNewLine(workingLine, BUFSIZ);
         // Add the contents of the current working line to the string stream
-        writeLog(workingLine);
+        childLog.addLine(workingLine);
         // Read in the next buffer space of the pipe output
         workingLine = fgets(buffer, BUFSIZ, pipeFiles.at(0));
 
+        // TODO fgets can't return a negative value
         // If fgets returns a negative value, an error occured while reading from the pipe
         if (workingLine < 0)
         {
@@ -106,10 +111,55 @@ int main (int argc, char** argv)
         }
     }
 
+    writeLog(childLog.getLog());
+
+    // TAIL LOG FILE
+    // writeLog("Printing log of child server to daemon log", true);
+    // // FILE object for reading from the pipe for the gawk command
+    // FILE* pipeTown;
+    // // Array of characters to use as a buffer for reading from the pipe
+    // char buffer[BUFFER_SIZE];
+    // // Pointer to the currently read in line from the pipe
+    // char* workingLine;
+    // // String stream for collecting the command output
+    // stringstream output;
+
+    // writeLog(string("Running '") + "tail " + workDir + "logs/latest.log'", true);
+
+    // while (true)
+    // {
+    //     sleep(1);
+
+    //     // Open the pipe with the given command in read mode
+    //     pipeTown = popen(("tail " + workDir + "logs/latest.log").c_str(), "r");
+
+    //     // If the pipe failed to open
+    //     if (!pipeTown)
+    //     {
+    //         writeLog("Failed to open pipe for reading log of server " /* + SERVER_NAME*/);
+    //     }
+
+    //     // Read in the first buffer space of the pipe output
+    //     workingLine = fgets(buffer, BUFFER_SIZE, pipeTown);
+
+    //     // Loop until there is nothing more to be read from the buffer
+    //     while (workingLine != NULL)
+    //     {
+    //         // Add the contents of the current working line to the string stream
+    //         output << workingLine;
+    //         // Read in the next buffer space of the pipe output
+    //         workingLine = fgets(buffer, BUFFER_SIZE, pipeTown);
+    //     }
+
+    //     // Close the pipe
+    //     pclose(pipeTown);
+
+    //     // Print tail output
+    //     writeLog(output.str());
+    // }
+
     // Tell the user what's happening
     writeLog("Exiting...");
-    // Remove the PID file
-    runCommand("rm -f minecraft-daemon.pid");
 
     // Close the files used for reading from the child pipes
     for (auto file : pipeFiles)
@@ -130,6 +180,9 @@ int main (int argc, char** argv)
         }
         delete[] pipe;
     }
+
+    // Remove the PID file
+    runCommand("rm -f minecraft-daemon.pid");
 
     // Exit
     return 0;
