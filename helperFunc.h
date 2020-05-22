@@ -21,5 +21,6 @@
 
 int verifyFolders();
 void printConfig();
+char* trimNewLine(char* s, int size);
 
 #endif // __HELPERFUNC_H_
