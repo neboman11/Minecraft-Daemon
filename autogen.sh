@@ -31,8 +31,6 @@ autoreconf --verbose --force --install || exit 1
 
 cd "$olddir"
 
-CFLAGS=${CFLAGS-"-Wall -Werror"}
-
 ACLOCAL_FLAGS="$ACLOCAL_FLAGS"
 REQUIRED_AUTOMAKE_VERSION=1.8
 
