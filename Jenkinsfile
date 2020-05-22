@@ -29,6 +29,6 @@ pipeline {
   }
   environment {
     CODECOV_TOKEN = '5f5c6ae9-85f2-4a63-8219-69fef3151803'
-    COVERAGE_TEST = 'true'
+    COVERAGE_BUILD = 'true'
   }
 }
