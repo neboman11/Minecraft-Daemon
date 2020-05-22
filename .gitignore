@@ -47,3 +47,6 @@ config.status
 
 # Keep the test config file to make it easier to work on (it's also an example config file)
 !minecraft-deamon.conf
+
+# Gcov files
+*.gcno
