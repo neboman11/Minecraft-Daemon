@@ -4642,6 +4642,14 @@ done
 
 
 
+if [ ! -z ${DEBUG_BUILD+x} ]; then
+    CXXFLAGS="-g"
+elif [ ! -z ${COVERAGE_BUILD+x} ]; then
+    CXXFLAGS="-ftest-coverage"
+else
+    CXXFLAGS="-O2"
+fi
+
 ac_config_files="$ac_config_files Makefile"
 
 cat >confcache <<\_ACEOF

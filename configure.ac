@@ -18,5 +18,17 @@ AC_CHECK_HEADERS(rude/config.h, [], [AC_ERROR([Rudeconfig is required for this p
 
 dnl AC_SEARCH_LIBS(rude, rudeconfig, [], [AC_ERROR([Rudeconfig is required for this project.])])
 
+dnl Add compiler flags based on type of build
+dnl If it is a debug build (DEBUG_BUILD is defined)
+if [[ ! -z ${DEBUG_BUILD+x} ]]; then
+    CXXFLAGS="-g"
+dnl If it is a coverage build (COVERAGE_BUILD is defined)
+elif [[ ! -z ${COVERAGE_BUILD+x} ]]; then
+    CXXFLAGS="-ftest-coverage"
+dnl If it is a regular build
+else
+    CXXFLAGS="-O2"
+fi
+
 dnl Process Makefile.in to create Makefile
 AC_OUTPUT(Makefile)
