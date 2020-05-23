@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <vector>
 #include <map>
+#include <pthread.h>
 #include "cmdParse.h"
 #include "readConfig.h"
 #include "loggingFunc.h"
@@ -34,10 +35,20 @@ map<int, string> configOptions;
 // Each entry in the vector is a 2x2 array of file descriptors for pipes.
 // The [0][1] and [1][0] pipes will always be closed from this end
 vector<int**> serverPipes;
+// Vector of child log objects
+vector<ServerLog*> childLogs;
+
+struct thread_info
+{
+    pthread_t   threadID;   // ID of the thread returned by pthread_create
+    int         serverNum;  // Number of server to read log of
+    FILE*       pipeFile;   // File pointer to the pipe for reading
+};
 
 // Function prototypes
 void createPIDFile(pid_t mypid);
 int initialize();
+static void * readServerLog(void* arg);
 
 int main (int argc, char** argv)
 {
@@ -60,14 +71,16 @@ int main (int argc, char** argv)
         return status;
     }
 
+    // Arguments to be passed to java for running the server
     char* testArgs[2];
     testArgs[0] = (char*)"java";
     testArgs[1] = (char*)"-version";
 
-    vector<FILE*> pipeFiles;
-
+    // Directory to run the server in
     string workDir = "/home/nesbitt/Downloads/testserver/";
 
+    // Create a new server child process
+    // This will push_back a 2D array of pipes to serverPipes
     status = startServer(configOptions[JAVA_PATH], testArgs, workDir);
 
     // If an error occurred during initialization
@@ -79,93 +92,68 @@ int main (int argc, char** argv)
 
     writeLog("Printing stdout of child to log", true);
 
-    // PIPE STDOUT OF CHILD
-    // Server log object to hold output of child
-    ServerLog childLog;
-    // Array of characters to use as a buffer for reading from the pipe
-    char buffer[BUFSIZ];
-    // Pointer to the currently read in line from the pipe
-    char* workingLine;
+    // Child number to watch the log for
+    int childNum = 0;
+    // Thread info struct to hold the arguments to be passed to the created thread
+    thread_info* tinfo = new thread_info;
+    // Attributes for the thread
+    pthread_attr_t attr;
 
-    pipeFiles.push_back(fdopen(serverPipes.at(0)[0][0], "r"));
+    // Initialize the thread attributes
+    status = pthread_attr_init(&attr);
 
-    // Read in the first buffer space of the pipe output
-    workingLine = fgets(buffer, BUFSIZ, pipeFiles.at(0));
-
-    // Loop until there is nothing more to be read from the buffer
-    while (workingLine > 0)
+    // If an error occurred during initialization
+    if (status != 0)
     {
-        // Remove newline from workingLine
-        trimNewLine(workingLine, BUFSIZ);
-        // Add the contents of the current working line to the string stream
-        childLog.addLine(workingLine);
-        // Read in the next buffer space of the pipe output
-        workingLine = fgets(buffer, BUFSIZ, pipeFiles.at(0));
-
-        // TODO fgets can't return a negative value
-        // If fgets returns a negative value, an error occured while reading from the pipe
-        if (workingLine < 0)
-        {
-            writeLog("Error reading from pipe");
-            break;
-        }
+        // Return the error value
+        return status;
     }
 
-    writeLog(childLog.getLog());
+    // Set the child number to watch the log of
+    tinfo->serverNum = childNum;
 
-    // TAIL LOG FILE
-    // writeLog("Printing log of child server to daemon log", true);
-    // // FILE object for reading from the pipe for the gawk command
-    // FILE* pipeTown;
-    // // Array of characters to use as a buffer for reading from the pipe
-    // char buffer[BUFFER_SIZE];
-    // // Pointer to the currently read in line from the pipe
-    // char* workingLine;
-    // // String stream for collecting the command output
-    // stringstream output;
+    // Open the pipe as a file for fgets (so it blocks)
+    FILE* pipeOutFile = fdopen(serverPipes.at(tinfo->serverNum)[0][0], "r");
 
-    // writeLog(string("Running '") + "tail " + workDir + "logs/latest.log'", true);
+    // Set the pipefile in the struct to pass to the thread
+    tinfo->pipeFile = pipeOutFile;
 
-    // while (true)
-    // {
-    //     sleep(1);
+    // Spawn a new thread to watch the log
+    status = pthread_create(&tinfo->threadID, &attr, &readServerLog, &tinfo);
 
-    //     // Open the pipe with the given command in read mode
-    //     pipeTown = popen(("tail " + workDir + "logs/latest.log").c_str(), "r");
+    // If an error occurred during initialization
+    if (status != 0)
+    {
+        // Return the error value
+        return status;
+    }
 
-    //     // If the pipe failed to open
-    //     if (!pipeTown)
-    //     {
-    //         writeLog("Failed to open pipe for reading log of server " /* + SERVER_NAME*/);
-    //     }
+    // Wait for the server to finish starting up
+    sleep(15);
 
-    //     // Read in the first buffer space of the pipe output
-    //     workingLine = fgets(buffer, BUFFER_SIZE, pipeTown);
+    // Write the child log to the daemon log
+    writeLog(childLogs.at(childNum)->getLog());
 
-    //     // Loop until there is nothing more to be read from the buffer
-    //     while (workingLine != NULL)
-    //     {
-    //         // Add the contents of the current working line to the string stream
-    //         output << workingLine;
-    //         // Read in the next buffer space of the pipe output
-    //         workingLine = fgets(buffer, BUFFER_SIZE, pipeTown);
-    //     }
+    // Message to send to child server
+    const char* message = "stop\n";
 
-    //     // Close the pipe
-    //     pclose(pipeTown);
+    // Write the message to stdin of the child
+    write(serverPipes.at(childNum)[1][1], message, 6);
 
-    //     // Print tail output
-    //     writeLog(output.str());
-    // }
+    // Wait for the server to stop
+    sleep(5);
+
+    // Write the child log to the daemon log
+    writeLog(childLogs.at(childNum)->getLog());
 
     // Tell the user what's happening
     writeLog("Exiting...");
 
-    // Close the files used for reading from the child pipes
-    for (auto file : pipeFiles)
-    {
-        fclose(file);
-    }
+    // // Close the files used for reading from the child pipes
+    // for (auto file : pipeFiles)
+    // {
+    //     fclose(file);
+    // }
 
     // Close the log file just in case
     logFile->close();
@@ -292,5 +280,46 @@ int initialize()
     printConfig();
 
     // Return to where it was called
+    return 0;
+}
+
+void* readServerLog(void* arg)
+{
+    thread_info* tinfo = (thread_info*)arg;
+
+    // PIPE STDOUT OF CHILD
+    // Server log object to hold output of child
+    ServerLog* childLog = new ServerLog();
+    // Add the childLog to the global vector
+    childLogs.push_back(childLog);
+    // Array of characters to use as a buffer for reading from the pipe
+    char buffer[BUFSIZ];
+    // Pointer to the currently read in line from the pipe
+    char* workingLine;
+
+    // Read in the first buffer space of the pipe output
+    workingLine = fgets(buffer, BUFSIZ, tinfo->pipeFile);
+
+    // Loop until there is nothing more to be read from the buffer
+    while (workingLine > 0)
+    {
+        // Remove newline from workingLine
+        trimNewLine(workingLine, BUFSIZ);
+        // Add the contents of the current working line to the string stream
+        childLog->addLine(workingLine);
+        // Read in the next buffer space of the pipe output
+        workingLine = fgets(buffer, BUFSIZ, tinfo->pipeFile);
+
+        // TODO fgets can't return a negative value
+        // If fgets returns a negative value, an error occured while reading from the pipe
+        if (workingLine < 0)
+        {
+            writeLog("Error reading from pipe");
+            break;
+        }
+    }
+
+    fclose(tinfo->pipeFile);
+
     return 0;
 }
