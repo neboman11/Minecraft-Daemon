@@ -19,11 +19,9 @@
 #include <string>
 #include <vector>
 #include <limits.h>
+#include "serverLog.h"
 
 using namespace std;
-
-// Constants for inotify
-#define BUFFER_LENGTH (10 * (sizeof(struct inotify_event) + NAME_MAX + 1))
 
 // Enumerator for readable map indexing
 enum flagOptions { DAEMON, CONFIG };
@@ -33,6 +31,5 @@ enum configEnum { VERBOSE, LOG_FILE, JAVA_PATH };
 extern ofstream* logFile;
 extern map<int, string> inputOptions;
 extern map<int, string> configOptions;
-extern vector<int**> serverPipes;
 
 #endif // __MAIN_H_
