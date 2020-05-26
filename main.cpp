@@ -22,7 +22,6 @@
 #include "signalHandling.h"
 #include "commandFunc.h"
 #include "helperFunc.h"
-#include "serverLog.h"
 #include "mcServer.h"
 
 // Pointer to ofstream object that is the log file
