@@ -23,14 +23,6 @@ void interruptSignal(int signum)
     logFile->close();
     // Free memory
     delete logFile;
-    for (auto pipe : serverPipes)
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            delete[] pipe[i];
-        }
-        delete[] pipe;
-    }
     // Exit the program
     exit(0);
 }

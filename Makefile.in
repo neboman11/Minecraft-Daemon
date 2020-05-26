@@ -36,7 +36,7 @@ PROJECTNAME = Minecraft-Daemon
 # Enter the names of the C++ source files that you want to compile
 # with this project
 
-SRCS = main.cpp cmdParse.cpp commandFunc.cpp helperFunc.cpp loggingFunc.cpp readConfig.cpp signalHandling.cpp startServer.cpp serverLog.cpp
+SRCS = main.cpp cmdParse.cpp commandFunc.cpp helperFunc.cpp loggingFunc.cpp readConfig.cpp signalHandling.cpp serverLog.cpp mcServer.cpp
 
 # Enter the name for the executable to be created
 EXEC = Minecraft-Daemon

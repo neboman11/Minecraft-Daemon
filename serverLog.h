@@ -1,5 +1,5 @@
 /*
- * Filename:	loggingFunc.h
+ * Filename:	serverLog.h
  * Date:		04/14/2020
  * Author:		Michael Nesbitt
  * Email:		man170530@utdallas.edu
@@ -10,6 +10,9 @@
  *
  *	Header for serverLog class.
  */
+
+#ifndef __SERVERLOG_H_
+#define __SERVERLOG_H_
 
 #include <list>
 #include <string>
@@ -38,3 +41,5 @@ public:
     // Get the log as a single string
     string getLog();
 };
+
+#endif // __SERVERLOG_H_
