@@ -53,7 +53,7 @@ OBJS = $(SRCS:.cpp=.o)
 all: $(EXEC)
 
 clean:
-	rm -f $(OBJS) *.d *~ *.log $(EXEC)
+	rm -f $(OBJS) *.d *~ *.log *.gcno $(EXEC)
 
 
 # Pattern for .d files.
