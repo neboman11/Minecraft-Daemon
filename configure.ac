@@ -26,7 +26,8 @@ if [[ ! -z ${DEBUG_BUILD+x} ]]; then
 dnl If it is a coverage build (COVERAGE_BUILD is defined)
 elif [[ ! -z ${COVERAGE_BUILD+x} ]]; then
     echo "Setting coverage build flag..."
-    CXXFLAGS="-ftest-coverage"
+    CXXFLAGS="--coverage"
+    LDFLAGS="--coverage"
 dnl If it is a regular build
 else
     CXXFLAGS="-O2"

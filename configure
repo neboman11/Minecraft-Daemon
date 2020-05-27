@@ -4643,9 +4643,12 @@ done
 
 
 if [ ! -z ${DEBUG_BUILD+x} ]; then
+    echo "Setting debug build flag..."
     CXXFLAGS="-g"
 elif [ ! -z ${COVERAGE_BUILD+x} ]; then
-    CXXFLAGS="-ftest-coverage"
+    echo "Setting coverage build flag..."
+    CXXFLAGS="--coverage"
+    LDFLAGS="--coverage"
 else
     CXXFLAGS="-O2"
 fi
