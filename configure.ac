@@ -21,9 +21,11 @@ dnl AC_SEARCH_LIBS(rude, rudeconfig, [], [AC_ERROR([Rudeconfig is required for t
 dnl Add compiler flags based on type of build
 dnl If it is a debug build (DEBUG_BUILD is defined)
 if [[ ! -z ${DEBUG_BUILD+x} ]]; then
+    echo "Setting debug build flag..."
     CXXFLAGS="-g"
 dnl If it is a coverage build (COVERAGE_BUILD is defined)
 elif [[ ! -z ${COVERAGE_BUILD+x} ]]; then
+    echo "Setting coverage build flag..."
     CXXFLAGS="-ftest-coverage"
 dnl If it is a regular build
 else
