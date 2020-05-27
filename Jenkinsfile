@@ -21,7 +21,7 @@ pipeline {
 
     stage('Test') {
       steps {
-        sh './Minecraft-Daemon; sleep 30'
+        sh './Minecraft-Daemon < tests/exit.txt'
         sh './get_code_cov.sh'
         sh 'curl https://codecov.io/bash -o codecov.sh && chmod a+x codecov.sh && /bin/bash codecov.sh'
       }
