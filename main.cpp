@@ -192,9 +192,10 @@ int serverMenu()
     char choice;
     string input;
 
+    cout << "Welcome to Minecraft-Daemon." << endl;
+
     do
     {
-        cout << "Welcome to Minecraft-Daemon." << endl;
         cout << "Choose an option:" << endl;
         cout << "[s] Start a server" << endl;
         cout << "[l] View a server's output" << endl;
@@ -244,11 +245,12 @@ int menuStart()
     getline(cin, input);
 
     string serverJar = input;
+    string serverPath = serverDir + "/" + serverJar;
 
     vector<char*> serverArgs;
     serverArgs.push_back((char*)"java");
     serverArgs.push_back((char*)"-jar");
-    serverArgs.push_back((char*)(serverDir + "/" + serverJar).c_str());
+    serverArgs.push_back((char*)serverPath.c_str());
     serverArgs.push_back((char*)"nogui");
     serverArgs.push_back((char*)nullptr);
 
