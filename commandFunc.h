@@ -23,6 +23,5 @@
 using namespace std;
 
 void runCommand(string command);
-string getFormattedDate();
 
 #endif // __COMMANDFUNC_H_
