@@ -21,7 +21,11 @@ pipeline {
 
     stage('Test') {
       steps {
-        sh './Minecraft-Daemon < tests/exit.txt'
+        sh '''
+for filename in `find tests -type f`; 
+do 
+  ./Minecraft-Daemon < $filename; 
+done'''
         sh './get_code_cov.sh'
         sh 'curl https://codecov.io/bash -o codecov.sh && chmod a+x codecov.sh && /bin/bash codecov.sh'
       }
