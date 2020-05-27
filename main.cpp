@@ -30,10 +30,16 @@ ofstream* logFile;
 map<int, string> inputOptions;
 // Map of the config file options
 map<int, string> configOptions;
+// Map of child servers
+map<int, MCServer*> servers;
 
 // Function prototypes
 void createPIDFile(pid_t mypid);
 int initialize();
+int serverMenu();
+int menuStart();
+int menuLog();
+int menuStop();
 
 int main (int argc, char** argv)
 {
@@ -56,60 +62,16 @@ int main (int argc, char** argv)
         return status;
     }
 
-    // Arguments to be passed to java for running the server
-    char* testArgs[2];
-    testArgs[0] = (char*)"java";
-    testArgs[1] = (char*)"-version";
-    
-    int childNum = 1;
-
-    // Directory to run the server in
-    string workDir = "/home/nesbitt/Downloads/testserver/";
-
-    writeLog("Creating child server");
-
-    // Create a new server child process
-    MCServer testChild = MCServer(testArgs, workDir, childNum);
-
-    writeLog("Printing stdout of child to log", true);
-
-    // Wait for the server to finish starting up
-    sleep(15);
-
-    // Write the child log to the daemon log
-    writeLog(testChild.getLog());
-
-    // Stop the server
-    testChild.stop();
-
-    // Wait for the server to stop
-    sleep(5);
-
-    // Write the child log to the daemon log
-    writeLog(testChild.getLog());
+    serverMenu();
 
     // Tell the user what's happening
     writeLog("Exiting...");
-
-    // // Close the files used for reading from the child pipes
-    // for (auto file : pipeFiles)
-    // {
-    //     fclose(file);
-    // }
 
     // Close the log file just in case
     logFile->close();
 
     // Free memory just in case
     delete logFile;
-    // for (auto pipe : serverPipes)
-    // {
-    //     for (int i = 0; i < 2; i++)
-    //     {
-    //         delete[] pipe[i];
-    //     }
-    //     delete[] pipe;
-    // }
 
     // Remove the PID file
     runCommand("rm -f minecraft-daemon.pid");
@@ -222,5 +184,106 @@ int initialize()
     printConfig();
 
     // Return to where it was called
+    return 0;
+}
+
+int serverMenu()
+{
+    char choice;
+    string input;
+
+    do
+    {
+        cout << "Welcome to Minecraft-Daemon." << endl;
+        cout << "Choose an option:" << endl;
+        cout << "[s] Start a server" << endl;
+        cout << "[l] View a server's output" << endl;
+        cout << "[k] Stop a running server" << endl;
+        cout << "[0] Quit the daemon" << endl;
+
+        getline(cin, input);
+
+        choice = input[0];
+
+        switch (choice)
+        {
+        case 's':
+            menuStart();
+            break;
+        case 'l':
+            menuLog();
+            break;
+        case 'k':
+            menuStop();
+            break;
+        
+        default:
+            break;
+        }
+    }
+    while (choice != '0');
+
+    return 0;
+}
+
+int menuStart()
+{
+    string input;
+
+    cout << "Enter a unique number for the server: ";
+    getline(cin, input);
+
+    int serverNum = stoi(input);
+
+    cout << "Enter the folder to run the server in: ";
+    getline(cin, input);
+
+    string serverDir = input;
+
+    cout << "Enter the name of the server jar file: ";
+    getline(cin, input);
+
+    string serverJar = input;
+
+    vector<char*> serverArgs;
+    serverArgs.push_back((char*)"java");
+    serverArgs.push_back((char*)"-jar");
+    serverArgs.push_back((char*)(serverDir + "/" + serverJar).c_str());
+    serverArgs.push_back((char*)"nogui");
+    serverArgs.push_back((char*)nullptr);
+
+    // Create a new server child process
+    servers[serverNum] = new MCServer(serverArgs.data(), serverDir, serverNum);
+
+    return 0;
+}
+
+int menuLog()
+{
+    string input;
+
+    cout << "Enter the server number to view the log of: ";
+    getline(cin, input);
+
+    int serverNum = stoi(input);
+
+    cout << servers[serverNum]->getLog() << endl;
+
+    return 0;
+}
+
+int menuStop()
+{
+    string input;
+
+    cout << "Enter the server number to stop: ";
+    getline(cin, input);
+
+    int serverNum = stoi(input);
+
+    servers[serverNum]->stop();
+
+    delete servers[serverNum];
+
     return 0;
 }

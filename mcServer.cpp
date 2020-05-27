@@ -139,6 +139,8 @@ int MCServer::spawnChild(char* arguments[], string workDir)
         close(serverPipe[0][1]);
         // Close the read end of what will become stdin for the child
         close(serverPipe[1][0]);
+
+        writeLog((((string("Starting child server with command: ") + arguments[0]) + arguments[1]) + arguments[2]) + arguments[3], true);
     }
 
     // If fork returned 0
@@ -169,8 +171,7 @@ int MCServer::spawnChild(char* arguments[], string workDir)
             exit(EXIT_FAILURE);
         }
 
-        //status = execv(configOptions[JAVA_PATH].c_str(), arguments);
-        status = execl(configOptions[JAVA_PATH].c_str(), "java", "-jar", (workDir + "server.jar").c_str(), "nogui", (char*)0);
+        status = execv(configOptions[JAVA_PATH].c_str(), arguments);
 
         if (status < 0)
         {
