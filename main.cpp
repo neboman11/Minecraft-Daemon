@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <vector>
 #include <map>
+#include <iterator>
 #include <pthread.h>
 #include "cmdParse.h"
 #include "readConfig.h"
@@ -32,6 +33,8 @@ map<int, string> inputOptions;
 map<int, string> configOptions;
 // Map of child servers
 map<int, MCServer*> servers;
+// List of server IDs
+vector<int> serverIDs;
 
 // Function prototypes
 void createPIDFile(pid_t mypid);
@@ -236,6 +239,36 @@ int menuStart()
 
     int serverNum = stoi(input);
 
+    bool duplicateID = false;
+
+    for (auto i : serverIDs)
+    {
+        if (i == serverNum)
+        {
+            duplicateID = true;
+        }
+    }
+
+    while (duplicateID)
+    {
+        cout << "That ID has already been used, please enter a different one: ";
+        getline(cin, input);
+
+        serverNum = stoi(input);
+
+        duplicateID = false;
+
+        for (auto i : serverIDs)
+        {
+            if (i == serverNum)
+            {
+                duplicateID = true;
+            }
+        }
+    }
+
+    serverIDs.push_back(serverNum);
+
     cout << "Enter the folder to run the server in: ";
     getline(cin, input);
 
@@ -269,6 +302,34 @@ int menuLog()
 
     int serverNum = stoi(input);
 
+    bool validID = false;
+
+    for (auto i : serverIDs)
+    {
+        if (i == serverNum)
+        {
+            validID = true;
+        }
+    }
+
+    while (!validID)
+    {
+        cout << "That ID does not exist, please enter a different one: ";
+        getline(cin, input);
+
+        serverNum = stoi(input);
+
+        validID = false;
+
+        for (auto i : serverIDs)
+        {
+            if (i == serverNum)
+            {
+                validID = true;
+            }
+        }
+    }
+
     cout << servers[serverNum]->getLog() << endl;
 
     return 0;
@@ -283,9 +344,49 @@ int menuStop()
 
     int serverNum = stoi(input);
 
+    bool validID = false;
+
+    for (auto i : serverIDs)
+    {
+        if (i == serverNum)
+        {
+            validID = true;
+        }
+    }
+
+    while (!validID)
+    {
+        cout << "That ID does not exist, please enter a different one: ";
+        getline(cin, input);
+
+        serverNum = stoi(input);
+
+        validID = false;
+
+        for (auto i : serverIDs)
+        {
+            if (i == serverNum)
+            {
+                validID = true;
+            }
+        }
+    }
+
     servers[serverNum]->stop();
 
     delete servers[serverNum];
+
+    auto iter = serverIDs.begin();
+
+    for (unsigned long i = 0; i < serverIDs.size(); i++)
+    {
+        if (serverIDs.at(i) == serverNum)
+        {
+            serverIDs.erase(iter);
+        }
+
+        iter++;
+    }
 
     return 0;
 }
