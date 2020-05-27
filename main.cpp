@@ -114,28 +114,28 @@ int initialize()
         return 6;
     }
 
-    // If the process is to run as a daemon
-    if (inputOptions[DAEMON] == "true")
-    {
-        // Fork the process and store the return value
-        mypid = fork();
+    // // If the process is to run as a daemon
+    // if (inputOptions[DAEMON] == "true")
+    // {
+    //     // Fork the process and store the return value
+    //     mypid = fork();
 
-        // If fork returned a negative value
-        if (mypid < 0)
-        {
-            // Write an error message to the screen
-            cerr << "There was an error creating the fork. No child process was created. Exiting..." << endl;
-            // Exit the program
-            return 2;
-        }
+    //     // If fork returned a negative value
+    //     if (mypid < 0)
+    //     {
+    //         // Write an error message to the screen
+    //         cerr << "There was an error creating the fork. No child process was created. Exiting..." << endl;
+    //         // Exit the program
+    //         return 2;
+    //     }
 
-        // If fork returned a positive number
-        else if (mypid > 0)
-        {
-            // This process is the parent so it exits
-            exit(0);
-        }
-    }
+    //     // If fork returned a positive number
+    //     else if (mypid > 0)
+    //     {
+    //         // This process is the parent so it exits
+    //         exit(0);
+    //     }
+    // }
 
     // Get the current process's PID
     mypid = getpid();
