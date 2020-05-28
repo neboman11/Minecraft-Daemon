@@ -25,10 +25,6 @@ fi
 
 autoreconf --verbose --force --install || exit 1
 
-(test -f ChangeLog) || {
-    touch ChangeLog
-}
-
 cd "$olddir"
 
 ACLOCAL_FLAGS="$ACLOCAL_FLAGS"
