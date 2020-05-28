@@ -16,6 +16,7 @@
 #include "main.h"
 #include "loggingFunc.h"
 #include "helperFunc.h"
+#include "serverLog.h"
 
 // Thread info struct
 // Used for passing arguments to a thread
