@@ -18,10 +18,10 @@ CXX = g++
 CPPFLAGS = 
 
 # compiler flags
-CXXFLAGS = -Werror -Wall -std=c++17 @CXXFLAGS@
+CXXFLAGS = -Werror -Wall -std=c++17 -D__VERSION_MAJOR_=0 -D__VERSION_MINOR_=1 -pthread @CXXFLAGS@
 
 # linker flags
-LDFLAGS = @LDFLAGS@
+LDFLAGS = @LDFLAGS@ -pthread
 LIBS = @LIBS@ -lrudeconfig
 
 

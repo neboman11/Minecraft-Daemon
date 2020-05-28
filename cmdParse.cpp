@@ -19,7 +19,7 @@ map<int, string> cmdParse(int argc, char** argv)
   try
   {
     // The main command line object for parsing the command line
-    TCLAP::CmdLine cmd("Minecraft Daemon", ' ', "0.1");
+    TCLAP::CmdLine cmd("Minecraft Daemon", ' ', to_string(__VERSION_MAJOR_) + "." + to_string(__VERSION_MINOR_));
 
     // Whether or not to run as a daemon
     TCLAP::SwitchArg daemon("d", "daemon", "Run in daemon mode (forks to run as a daemon).", false);
