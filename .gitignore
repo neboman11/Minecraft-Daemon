@@ -50,3 +50,6 @@ config.status
 
 # Gcov files
 *.gcno
+
+# Exclude build director
+build/*

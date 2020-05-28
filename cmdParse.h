@@ -11,6 +11,9 @@
 #define __CMDPARSE_H_
 
 #include <tclap/CmdLine.h>
+#ifdef CMAKE_BUILD
+#include "versionConfig.h"
+#endif
 #include "main.h"
 
 map<int, string> cmdParse(int argc, char** argv);
