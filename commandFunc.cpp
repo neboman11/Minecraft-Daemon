@@ -1,10 +1,6 @@
 /*
- * Filename:		commandFunc.cpp
- * Date:		04/14/2020
+ * Filename:	commandFunc.cpp
  * Author:		Michael Nesbitt
- * Email:		nesbitt@treeman.nesbitt.rocks
- * Version:		1.0
- * Copyright:		2020, All Rights Reserved
  *
  * Description:
  *
@@ -15,12 +11,12 @@
 
 void runCommand(string command)
 {
-  // Pointer to the pipe
-  FILE* pipeTown;
+    // Pointer to the pipe
+    FILE* pipeTown;
 
-  // Open a pipe using the given command
-  pipeTown = popen(command.c_str(), "r");
+    // Open a pipe using the given command
+    pipeTown = popen(command.c_str(), "r");
 
-  // Close the pipe
-  pclose(pipeTown);
+    // Close the pipe
+    pclose(pipeTown);
 }

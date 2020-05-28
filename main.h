@@ -1,10 +1,6 @@
 /*
- * Filename:		main.h
- * Date:		04/14/2020
+ * Filename:	main.h
  * Author:		Michael Nesbitt
- * Email:		nesbitt@treeman.nesbitt.rocks
- * Version:		1.0
- * Copyright:		2020, All Rights Reserved
  *
  * Description:
  *
@@ -17,9 +13,6 @@
 #include <fstream>
 #include <map>
 #include <string>
-#include <vector>
-#include <limits.h>
-#include "serverLog.h"
 
 using namespace std;
 

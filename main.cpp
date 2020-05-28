@@ -1,22 +1,17 @@
 /*
- * Filename:		main.cpp
+ * Filename:	main.cpp
  * Date:		04/14/2020
  * Author:		Michael Nesbitt
- * Email:		nesbitt@treeman.nesbitt.rocks
- * Version:		1.0
- * Copyright:		2020, All Rights Reserved
  *
  * Description:
  *
- *	Daemon process for watching a directory specified in a config file. It monitors for modify events in the directory and creates copies of files when they are modified.
+ *	Daemon process for running Minecraft servers.
  */
 
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
 #include <map>
-#include <iterator>
-#include <pthread.h>
 #include "cmdParse.h"
 #include "readConfig.h"
 #include "loggingFunc.h"

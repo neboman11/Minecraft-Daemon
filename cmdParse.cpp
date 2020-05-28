@@ -1,10 +1,7 @@
 /*
- * Filename:		cmdParse.cpp
- * Date:		04/14/2020
- * Author:		Michael Nesbitt
- * Email:		nesbitt@treeman.nesbitt.rocks
- * Version:		1.0
- * Copyright:		2020, All Rights Reserved
+ * Filename:	cmdParse.cpp
+ * Date:		  04/14/2020
+ * Author:	  Michael Nesbitt
  *
  * Description:
  *

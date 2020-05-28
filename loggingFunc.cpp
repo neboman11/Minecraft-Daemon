@@ -1,10 +1,6 @@
 /*
- * Filename:		loggingFunc.cpp
- * Date:		04/14/2020
+ * Filename:	loggingFunc.cpp
  * Author:		Michael Nesbitt
- * Email:		nesbitt@treeman.nesbitt.rocks
- * Version:		1.0
- * Copyright:		2020, All Rights Reserved
  *
  * Description:
  *
@@ -15,10 +11,10 @@
 
 void writeLog(string message, bool messageVerbosity /*= false*/)
 {
-  // If the configuration is set to output verbose messages OR if the message is not verbose
-  if (configOptions[VERBOSE] == "true" || !messageVerbosity)
-  {
-    // Write the message to the log file.
-    *logFile << message << endl;
-  }
+    // If the configuration is set to output verbose messages OR if the message is not verbose
+    if (configOptions[VERBOSE] == "true" || !messageVerbosity)
+    {
+        // Write the message to the log file.
+        *logFile << message << endl;
+    }
 }

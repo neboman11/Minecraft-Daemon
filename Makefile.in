@@ -1,10 +1,6 @@
 #
 # Filename:		Makefile.in
-# Date:			02/24/2019
 # Author:		Michael Nesbitt
-# Email:		nesbitt@treeman.nesbitt.rocks
-# Version:		1.1
-# Copyright:		2020, All Rights Reserved
 #
 # Description:
 #
@@ -22,10 +18,10 @@ CXX = g++
 CPPFLAGS = 
 
 # compiler flags
-CXXFLAGS = -Werror -Wall -std=c++17 -pthread @CXXFLAGS@
+CXXFLAGS = -Werror -Wall -std=c++17 @CXXFLAGS@
 
 # linker flags
-LDFLAGS = @LDFLAGS@ -pthread
+LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@ -lrudeconfig
 
 

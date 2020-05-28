@@ -1,10 +1,6 @@
 /*
- * Filename:		signalHandling.cpp
- * Date:		04/14/2020
+ * Filename:	signalHandling.cpp
  * Author:		Michael Nesbitt
- * Email:		nesbitt@treeman.nesbitt.rocks
- * Version:		1.0
- * Copyright:		2020, All Rights Reserved
  *
  * Description:
  *

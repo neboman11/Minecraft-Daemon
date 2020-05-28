@@ -1,10 +1,6 @@
 /*
- * Filename:		signalHandling.h
- * Date:		04/14/2020
+ * Filename:	signalHandling.h
  * Author:		Michael Nesbitt
- * Email:		nesbitt@treeman.nesbitt.rocks
- * Version:		1.0
- * Copyright:		2020, All Rights Reserved
  *
  * Description:
  *
