@@ -11,22 +11,10 @@
 #define __MCSERVER_H_
 
 #include <unistd.h>
-#include <pthread.h>
 #include <thread>
-#include "main.h"
 #include "loggingFunc.h"
 #include "helperFunc.h"
 #include "serverLog.h"
-
-// Thread info struct
-// Used for passing arguments to a thread
-struct thread_info
-{
-    pthread_t   threadID;   // ID of the thread returned by pthread_create
-    int         serverNum;  // Number of server to read log of
-    FILE*       pipeFile;   // File pointer to the pipe for reading
-    ServerLog*  logSpot;    // Spot in memory where the log for the MCServer object is located
-};
 
 class MCServer
 {
