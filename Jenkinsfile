@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
-        sh 'git submodules update --init --recursive'
+        sh 'git submodule update --init --recursive'
         sh 'mkdir build'
         dir(path: 'build') {
           sh 'cmake CODE_COVERAGE=ON ..'
