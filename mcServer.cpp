@@ -206,7 +206,7 @@ void readServerLog(FILE* pipeFile, ServerLog* log)
     workingLine = fgets(buffer, BUFSIZ, pipeFile);
 
     // Loop until there is nothing more to be read from the buffer
-    while (workingLine > 0)
+    while (workingLine != nullptr)
     {
         // Remove newline from workingLine
         trimNewLine(workingLine, BUFSIZ);
@@ -214,14 +214,6 @@ void readServerLog(FILE* pipeFile, ServerLog* log)
         log->addLine(workingLine);
         // Read in the next buffer space of the pipe output
         workingLine = fgets(buffer, BUFSIZ, pipeFile);
-
-        // TODO fgets can't return a negative value
-        // If fgets returns a negative value, an error occured while reading from the pipe
-        if (workingLine < 0)
-        {
-            writeLog("Error reading from pipe");
-            break;
-        }
     }
 
     fclose(pipeFile);
