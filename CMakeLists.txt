@@ -18,11 +18,20 @@ add_executable(Minecraft-Daemon ${SOURCES})
 
 add_compile_definitions(CMAKE_BUILD)
 
+# Add cppurses as a submodule
+add_subdirectory(external/CPPurses)
+
 # Add support for pthreads
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-target_link_libraries(Minecraft-Daemon Threads::Threads rudeconfig)
 
+# Add libraries
+target_link_libraries(Minecraft-Daemon Threads::Threads rudeconfig cppurses)
+
+# Include binary directory for the versionConfig.h file
 target_include_directories(Minecraft-Daemon PUBLIC
                            "${PROJECT_BINARY_DIR}"
 )
+
+# Add compiler options
+target_compile_options(Minecraft-Daemon PRIVATE -Wall -Wextra -Wpedantic -Werror)
