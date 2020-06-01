@@ -18,7 +18,7 @@ CXX = g++
 CPPFLAGS = 
 
 # compiler flags
-CXXFLAGS = -Werror -Wall -std=c++17 -D__VERSION_MAJOR_=0 -D__VERSION_MINOR_=1 -pthread @CXXFLAGS@
+CXXFLAGS = -Wall -Werror -Wpedantic -Wextra -std=c++17 -D__VERSION_MAJOR_=0 -D__VERSION_MINOR_=1 -pthread @CXXFLAGS@
 
 # linker flags
 LDFLAGS = @LDFLAGS@ -pthread
