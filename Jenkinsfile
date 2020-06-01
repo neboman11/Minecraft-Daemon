@@ -3,29 +3,32 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
-        sh './autogen.sh'
+        sh 'mkdir build'
+        dir(path: 'build') {
+          sh 'cmake CODE_COVERAGE=ON ..'
+        }
+
       }
     }
 
     stage('Build') {
       steps {
-        sh 'make'
+        dir(path: 'build') {
+          sh 'make'
+        }
+
       }
     }
 
     stage('Save Executable') {
       steps {
-        archiveArtifacts(artifacts: 'Minecraft-Daemon', caseSensitive: true)
+        archiveArtifacts(artifacts: 'build/src/Minecraft-Daemon', caseSensitive: true)
       }
     }
 
     stage('Test') {
       steps {
-        sh '''
-for filename in `find tests -type f`; 
-do 
-  ./Minecraft-Daemon < $filename; 
-done'''
+        sh 'ctest'
         sh './get_code_cov.sh'
         sh 'curl https://codecov.io/bash -o codecov.sh && chmod a+x codecov.sh && /bin/bash codecov.sh'
       }
