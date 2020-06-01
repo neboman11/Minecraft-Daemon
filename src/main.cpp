@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <vector>
 #include <map>
+#include <cppurses/cppurses.hpp>
 #include "cmdParse.h"
 #include "readConfig.h"
 #include "loggingFunc.h"
@@ -33,6 +34,7 @@ vector<int> serverIDs;
 // Function prototypes
 void createPIDFile(pid_t mypid);
 int initialize();
+int cppursesMenu();
 
 int main (int argc, char** argv)
 {
@@ -54,6 +56,8 @@ int main (int argc, char** argv)
         // Return the error value
         return status;
     }
+
+    cppursesMenu();
 
     serverMenu();
 
@@ -178,4 +182,27 @@ int initialize()
 
     // Return to where it was called
     return 0;
+}
+
+int cppursesMenu()
+{
+    // Must create this object before any Widgets are created.
+    cppurses::System sys;
+
+    // Create a text string with Attributes, has type Glyph_string.
+    cppurses::Glyph_string greeting{"Hello, World!", cppurses::Attribute::Underline};
+
+    // Create Textbox Widget with `greeting` as the initial text.
+    cppurses::Textbox tb{greeting};
+
+    // Set the background and foreground colors of the Textbox.
+    tb.brush.set_background(cppurses::Color::Dark_blue);
+    tb.brush.set_foreground(cppurses::Color::Light_blue);
+
+    // Enable a border to be drawn around the Textbox.
+    tb.border.enable();
+
+    // Set the Textbox as the head(top-level) Widget, initialize the screen and
+    // start the user input event loop.
+    return sys.run(tb);
 }
