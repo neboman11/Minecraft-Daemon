@@ -12,7 +12,7 @@
 void interruptSignal(int signum)
 {
     // Tell the user what's happening
-    writeLog("Received interrupt signal. Exiting...");
+    writeLog("Received interrupt signal (" + to_string(signum) + "). Exiting...");
     // Remove the PID file
     runCommand("rm -f minecraft-daemon.pid");
     // Close the logfile
@@ -28,7 +28,7 @@ void hangupSignal(int signum)
     // Store the current log file
     string oldLogFile = configOptions[LOG_FILE];
     // Tell the user what's happening
-    writeLog("Received hangup signal.");
+    writeLog("Received hangup signal(" + to_string(signum) + ").");
     // Tell the user what's happening
     writeLog("Reading config file: " + inputOptions[CONFIG]);
     // Read the config file
