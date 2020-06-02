@@ -30,14 +30,20 @@ pipeline {
     stage('Test') {
       steps {
         sh 'ctest'
-        sh './get_code_cov.sh'
-        sh 'curl https://codecov.io/bash -o codecov.sh && chmod a+x codecov.sh && /bin/bash codecov.sh'
+      }
+    }
+
+    stage('Collect Coverage') {
+      steps {
+        sh 'lcov --directory . --capture --output-file coverage.info'
+        sh 'lcov --remove coverage.info \'/usr/*\' "${HOME}"\'/.cache/*\' --output-file coverage.info'
+        sh 'lcov --list coverage.info'
+        sh 'bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"'
       }
     }
 
   }
   environment {
     CODECOV_TOKEN = '5f5c6ae9-85f2-4a63-8219-69fef3151803'
-    COVERAGE_BUILD = 'true'
   }
 }
