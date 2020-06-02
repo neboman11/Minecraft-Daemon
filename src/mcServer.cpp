@@ -193,6 +193,30 @@ string MCServer::getLog()
     return log->getLog();
 }
 
+void MCServer::interact()
+{
+    string input;
+
+    cout << this->getLog();
+    getline(cin, input);
+
+    while (input != "exit")
+    {
+        if (input == "stop")
+        {
+            cout << "Server must be stopped from daemon menu." << endl;
+        }
+        
+        // Write the message to stdin of the child
+        write(serverPipe[1][1], (input + '\n').c_str(), input.length() + 1);
+
+        sleep(5);
+
+        cout << this->getLog();
+        getline(cin, input);
+    }
+}
+
 void readServerLog(FILE* pipeFile, ServerLog* log)
 {
     // Array of characters to use as a buffer for reading from the pipe

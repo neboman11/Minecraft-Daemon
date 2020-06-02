@@ -21,6 +21,7 @@ int serverMenu()
         cout << "Choose an option:" << endl;
         cout << "[s] Start a server" << endl;
         cout << "[l] View a server's output" << endl;
+        cout << "[i] Interact with a running server" << endl;
         cout << "[k] Stop a running server" << endl;
         cout << "[0] Quit the daemon" << endl;
 
@@ -35,6 +36,9 @@ int serverMenu()
             break;
         case 'l':
             menuLog();
+            break;
+        case 'i':
+            menuInteract();
             break;
         case 'k':
             menuStop();
@@ -150,6 +154,48 @@ int menuLog()
     }
 
     cout << servers[serverNum]->getLog() << endl;
+
+    return 0;
+}
+
+int menuInteract()
+{
+    string input;
+
+    cout << "Enter the server number to interact with: ";
+    getline(cin, input);
+
+    int serverNum = stoi(input);
+
+    bool validID = false;
+
+    for (auto i : serverIDs)
+    {
+        if (i == serverNum)
+        {
+            validID = true;
+        }
+    }
+
+    while (!validID)
+    {
+        cout << "That ID does not exist, please enter a different one: ";
+        getline(cin, input);
+
+        serverNum = stoi(input);
+
+        validID = false;
+
+        for (auto i : serverIDs)
+        {
+            if (i == serverNum)
+            {
+                validID = true;
+            }
+        }
+    }
+
+    servers[serverNum]->interact();
 
     return 0;
 }

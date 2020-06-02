@@ -26,6 +26,7 @@ extern vector<int> serverIDs;
 int serverMenu();
 int menuStart();
 int menuLog();
+int menuInteract();
 int menuStop();
 
 #endif // __SERVERMENU_H_
