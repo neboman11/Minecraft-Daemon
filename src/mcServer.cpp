@@ -135,8 +135,6 @@ int MCServer::spawnChild(char* arguments[], string workDir)
         close(serverPipe[0][1]);
         // Close the read end of what will become stdin for the child
         close(serverPipe[1][0]);
-
-        writeLog((((string("Starting child server with command: ") + arguments[0]) + arguments[1]) + arguments[2]) + arguments[3], true);
     }
 
     // If fork returned 0
