@@ -39,7 +39,7 @@ pipeline {
     stage('Collect Coverage') {
       steps {
         sh './get_code_cov.sh'
-        sh 'bash <(curl -s https://codecov.io/bash)'
+        sh 'curl -s https://codecov.io/bash | bash'
       }
     }
 
