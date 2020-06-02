@@ -1,7 +1,8 @@
 find_program(BASH_PROGRAM bash)
 
 if(BASH_PROGRAM)
-    add_test(NAME all-tests COMMAND ${BASH_PROGRAM} run-all-tests.sh ${PROJECT_BINARY_DIR}/src/Minecraft-Daemon WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
+    #add_test(NAME all-tests COMMAND ${BASH_PROGRAM} run-all-tests.sh ${PROJECT_BINARY_DIR}/src/Minecraft-Daemon WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
     add_test(NAME exit COMMAND ${BASH_PROGRAM} run-given-test.sh ${PROJECT_BINARY_DIR}/src/Minecraft-Daemon exit.test WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
     add_test(NAME start-stop-server COMMAND ${BASH_PROGRAM} run-given-test.sh ${PROJECT_BINARY_DIR}/src/Minecraft-Daemon start-and-stop-server.test WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
+    add_test(NAME interact-server COMMAND ${BASH_PROGRAM} run-given-test.sh ${PROJECT_BINARY_DIR}/src/Minecraft-Daemon interact-with-server.test WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
 endif(BASH_PROGRAM)
