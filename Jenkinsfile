@@ -6,7 +6,7 @@ pipeline {
         sh 'git submodule update --init --recursive'
         sh 'mkdir build'
         dir(path: 'build') {
-          sh 'cmake CODE_COVERAGE=ON ..'
+          sh 'cmake -DCODE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug ..'
         }
 
       }
@@ -29,16 +29,17 @@ pipeline {
 
     stage('Test') {
       steps {
-        sh 'ctest'
+        dir(path: 'build') {
+          sh 'ctest'
+        }
+
       }
     }
 
     stage('Collect Coverage') {
       steps {
-        sh 'lcov --directory . --capture --output-file coverage.info'
-        sh 'lcov --remove coverage.info \'/usr/*\' "${HOME}"\'/.cache/*\' --output-file coverage.info'
-        sh 'lcov --list coverage.info'
-        sh 'bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"'
+        sh './get_code_cov.sh'
+        sh 'bash <(curl -s https://codecov.io/bash)'
       }
     }
 
