@@ -110,6 +110,8 @@ int menuStart()
     serverArgs.push_back((char*)"nogui");
     serverArgs.push_back((char*)nullptr);
 
+    writeLog("Creating server with ID: " + to_string(serverNum) + " in folder: " + serverDir + " with jar file: " + serverJar);
+
     // Create a new server child process
     servers[serverNum] = new MCServer(serverArgs.data(), serverDir, serverNum);
 
@@ -244,6 +246,8 @@ int menuStop(int serverNum)
             }
         }
     }
+
+    writeLog("Shutting down server: " + to_string(serverNum));
 
     servers[serverNum]->stop();
 
