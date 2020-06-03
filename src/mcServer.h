@@ -46,7 +46,7 @@ public:
     // Stop the server
     void stop();
     // Create an interactive console for the server
-    void interact();
+    int interact();
 };
 
 void readServerLog(FILE* pipeFile, ServerLog* log);

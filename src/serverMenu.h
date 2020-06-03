@@ -27,6 +27,6 @@ int serverMenu();
 int menuStart();
 int menuLog();
 int menuInteract();
-int menuStop();
+int menuStop(int serverID);
 
 #endif // __SERVERMENU_H_

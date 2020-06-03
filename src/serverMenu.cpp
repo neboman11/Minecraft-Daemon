@@ -41,7 +41,7 @@ int serverMenu()
             menuInteract();
             break;
         case 'k':
-            menuStop();
+            menuStop(-1);
             break;
         
         default:
@@ -195,44 +195,52 @@ int menuInteract()
         }
     }
 
-    servers[serverNum]->interact();
+    int status = servers[serverNum]->interact();
+
+    if (status == 1)
+    {
+        menuStop(serverNum);
+    }
 
     return 0;
 }
 
-int menuStop()
+int menuStop(int serverNum)
 {
-    string input;
-
-    cout << "Enter the server number to stop: ";
-    getline(cin, input);
-
-    int serverNum = stoi(input);
-
-    bool validID = false;
-
-    for (auto i : serverIDs)
+    if (serverNum == -1)
     {
-        if (i == serverNum)
-        {
-            validID = true;
-        }
-    }
+        string input;
 
-    while (!validID)
-    {
-        cout << "That ID does not exist, please enter a different one: ";
+        cout << "Enter the server number to stop: ";
         getline(cin, input);
 
         serverNum = stoi(input);
 
-        validID = false;
+        bool validID = false;
 
         for (auto i : serverIDs)
         {
             if (i == serverNum)
             {
                 validID = true;
+            }
+        }
+
+        while (!validID)
+        {
+            cout << "That ID does not exist, please enter a different one: ";
+            getline(cin, input);
+
+            serverNum = stoi(input);
+
+            validID = false;
+
+            for (auto i : serverIDs)
+            {
+                if (i == serverNum)
+                {
+                    validID = true;
+                }
             }
         }
     }
