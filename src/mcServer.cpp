@@ -58,7 +58,7 @@ int MCServer::spawnLogWatcher()
     FILE* pipeOutFile = fdopen(serverPipe[0][0], "r");
 
     // Spawn a new thread to watch the log
-    childThread = thread(readServerLog, pipeOutFile, log);
+    childThread = thread(readServerLog, pipeOutFile, this);
 
     return 0;
 }
@@ -193,8 +193,10 @@ string MCServer::getLog()
     return log->getLog();
 }
 
-int MCServer::interact()
+int MCServer::interact(ostream* outputStream)
 {
+    activeOutput = outputStream;
+
     string input;
 
     cout << this->getLog();
@@ -204,22 +206,43 @@ int MCServer::interact()
     {
         if (input == "stop")
         {
+            activeOutput = nullptr;
+
             return 1;
         }
         
         // Write the message to stdin of the child
         write(serverPipe[1][1], (input + '\n').c_str(), input.length() + 1);
 
-        sleep(5);
-
-        cout << this->getLog();
         getline(cin, input);
     }
+
+    activeOutput = nullptr;
 
     return 0;
 }
 
-void readServerLog(FILE* pipeFile, ServerLog* log)
+void MCServer::addLogLine(string s)
+{
+    log->addLine(s);
+
+    if (activeOutput != nullptr)
+    {
+        *activeOutput << s << endl;
+    }
+}
+
+void MCServer::addLogLine(char* s)
+{
+    log->addLine(s);
+
+    if (activeOutput != nullptr)
+    {
+        *activeOutput << s << endl;
+    }
+}
+
+void readServerLog(FILE* pipeFile, MCServer* server)
 {
     // Array of characters to use as a buffer for reading from the pipe
     char buffer[BUFSIZ];
@@ -235,7 +258,8 @@ void readServerLog(FILE* pipeFile, ServerLog* log)
         // Remove newline from workingLine
         trimNewLine(workingLine, BUFSIZ);
         // Add the contents of the current working line to the string stream
-        log->addLine(workingLine);
+        server->addLogLine(workingLine);
+
         // Read in the next buffer space of the pipe output
         workingLine = fgets(buffer, BUFSIZ, pipeFile);
     }

@@ -197,7 +197,7 @@ int menuInteract()
         }
     }
 
-    int status = servers[serverNum]->interact();
+    int status = servers[serverNum]->interact(&cout);
 
     if (status == 1)
     {

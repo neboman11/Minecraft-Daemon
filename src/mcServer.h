@@ -32,6 +32,8 @@ private:
     int** serverPipe;
     // The thread for watching the server's log
     thread childThread;
+    // Pointer to ostream for actively updating the server output to that stream
+    ostream* activeOutput = nullptr;
 
     int spawnLogWatcher();
     int spawnChild(char* arguments[], string workDir);
@@ -43,12 +45,15 @@ public:
     ~MCServer();
     // Get the log as a single string
     string getLog();
+    // Add a new line to the server log and write it to the activeOutput
+    void addLogLine(string s);
+    void addLogLine(char* s);
     // Stop the server
     void stop();
     // Create an interactive console for the server
-    int interact();
+    int interact(ostream* outputStream);
 };
 
-void readServerLog(FILE* pipeFile, ServerLog* log);
+void readServerLog(FILE* pipeFile, MCServer* server);
 
 #endif // __MCSERVER_H_
