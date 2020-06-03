@@ -9,9 +9,11 @@
 
 #include "mcServer.h"
 
-MCServer::MCServer(char* arguments[], string workDir, int childNum)
+MCServer::MCServer(char* arguments[], string workDir, string jarFile, int childNum)
 {
     this->serverNum = childNum;
+    this->workingDir = workDir;
+    this->serverJar = jarFile;
 
     // Server log object to hold output of child
     log = new ServerLog();
@@ -191,6 +193,21 @@ void MCServer::stop()
 string MCServer::getLog()
 {
     return log->getLog();
+}
+
+int MCServer::getServerNum()
+{
+    return serverNum;
+}
+
+string MCServer::getWorkingDir()
+{
+    return workingDir;
+}
+
+string MCServer::getJarFile()
+{
+    return serverJar;
 }
 
 int MCServer::interact(ostream* outputStream)
