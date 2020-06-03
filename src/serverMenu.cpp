@@ -20,7 +20,8 @@ int serverMenu()
     {
         cout << "Choose an option:" << endl;
         cout << "[s] Start a server" << endl;
-        cout << "[l] View a server's output" << endl;
+        cout << "[l] List all running servers" << endl;
+        cout << "[o] View a server's output" << endl;
         cout << "[i] Interact with a running server" << endl;
         cout << "[k] Stop a running server" << endl;
         cout << "[0] Quit the daemon" << endl;
@@ -35,13 +36,52 @@ int serverMenu()
             menuStart();
             break;
         case 'l':
-            menuLog();
+            if (serverIDs.size() > 0)
+            {
+                menuList();
+            }
+
+            else
+            {
+                cout << "There are currently no running servers." << endl;
+            }
+
+            break;
+        case 'o':
+            if (serverIDs.size() > 0)
+            {
+                menuLog();
+            }
+
+            else
+            {
+                cout << "There are currently no running servers." << endl;
+            }
+
             break;
         case 'i':
-            menuInteract();
+            if (serverIDs.size() > 0)
+            {
+                menuInteract();
+            }
+
+            else
+            {
+                cout << "There are currently no running servers." << endl;
+            }
+
             break;
         case 'k':
-            menuStop(-1);
+            if (serverIDs.size() > 0)
+            {
+                menuStop(-1);
+            }
+
+            else
+            {
+                cout << "There are currently no running servers." << endl;
+            }
+
             break;
         
         default:
@@ -113,9 +153,19 @@ int menuStart()
     writeLog("Creating server with ID: " + to_string(serverNum) + " in folder: " + serverDir + " with jar file: " + serverJar);
 
     // Create a new server child process
-    servers[serverNum] = new MCServer(serverArgs.data(), serverDir, serverNum);
+    servers[serverNum] = new MCServer(serverArgs.data(), serverDir, serverJar, serverNum);
 
     return 0;
+}
+
+void menuList()
+{
+    cout << "These are all the current running servers:" << endl;
+
+    for (auto n : serverIDs)
+    {
+        cout << "  Server Number: " << to_string(servers[n]->getServerNum()) << ", Running in folder: " << servers[n]->getWorkingDir() << ", With server jar: " << servers[n]->getJarFile() << endl;
+    }
 }
 
 int menuLog()
