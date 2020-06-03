@@ -2,7 +2,7 @@ s
 1
 /var/lib/jenkins/testserver
 server.jar
-l
+o
 1
 k
 1
