@@ -10,9 +10,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Add source directory
 add_subdirectory(src)
 
-# Add cppurses as a submodule
-add_subdirectory(external/CPPurses)
-
 option (BUILD_TESTING "Build the testing tree." ON)
 # Only build tests if we are the top-level project
 # Allows this to be used by super projects with `add_subdirectory`
