@@ -85,6 +85,7 @@ int serverMenu()
             break;
         
         default:
+            cout << "Invalid option, please choose an option:" << endl;
             break;
         }
     }
