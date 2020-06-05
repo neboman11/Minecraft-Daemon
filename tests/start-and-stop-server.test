@@ -1,6 +1,12 @@
 s
+w
+w
 1
+/this-folder-does-not-exist
+/this-folder-really-does-not-exist
 /var/lib/jenkins/testserver
+not-a-jar
+not-a-jar-2
 server.jar
 o
 1

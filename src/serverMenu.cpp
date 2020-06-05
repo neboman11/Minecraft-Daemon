@@ -98,9 +98,8 @@ int menuStart()
     string input;
 
     cout << "Enter a unique number for the server: ";
-    getline(cin, input);
 
-    int serverNum = stoi(input);
+    int serverNum = getNumberFromUser();
 
     bool duplicateID = false;
 
@@ -115,9 +114,8 @@ int menuStart()
     while (duplicateID)
     {
         cout << "That ID has already been used, please enter a different one: ";
-        getline(cin, input);
 
-        serverNum = stoi(input);
+        serverNum = getNumberFromUser();
 
         duplicateID = false;
 
@@ -137,11 +135,74 @@ int menuStart()
 
     string serverDir = input;
 
+    // Stat struct for using the stat function to determine if the file exists
+    struct stat fileStatus;
+    // Stat the PID file to see if it exists
+    int temp = stat(serverDir.c_str(), &fileStatus);
+    // Whether or not the user entered a valid directory
+    bool validDir = false;
+
+    // If stat returned anything other than -1, the directory exists
+    if (temp != -1)
+    {
+        // Set validDir to true
+        validDir = true;
+    }
+
+    while (!validDir)
+    {
+        cout << "That folder does not exist, please enter a different directory: ";
+        getline(cin, input);
+
+        serverDir = input;
+
+        // Stat the PID file to see if it exists
+        temp = stat(serverDir.c_str(), &fileStatus);
+
+        // If stat returned anything other than -1, the directory exists
+        if (temp != -1)
+        {
+            // Set validDir to true
+            validDir = true;
+        }
+    }
+
     cout << "Enter the name of the server jar file: ";
     getline(cin, input);
 
     string serverJar = input;
     string serverPath = serverDir + "/" + serverJar;
+
+    // Stat the PID file to see if it exists
+    temp = stat(serverPath.c_str(), &fileStatus);
+    // Whether or not the user entered a valid directory
+    validDir = false;
+
+    // If stat returned anything other than -1, the directory exists
+    if (temp != -1)
+    {
+        // Set validDir to true
+        validDir = true;
+    }
+
+    while (!validDir)
+    {
+        cout << "That file does not exist, please enter a valid server jar file: ";
+        getline(cin, input);
+
+        serverJar = input;
+        serverPath = serverDir + "/" + serverJar;
+
+        // Stat the PID file to see if it exists
+        temp = stat(serverPath.c_str(), &fileStatus);
+
+        // If stat returned anything other than -1, the directory exists
+        if (temp != -1)
+        {
+            // Set validDir to true
+            validDir = true;
+        }
+    }
 
     vector<char*> serverArgs;
     serverArgs.push_back((char*)"java");
@@ -162,9 +223,9 @@ void menuList()
 {
     cout << "These are all the current running servers:" << endl;
 
-    for (auto n : serverIDs)
+    for (auto i : serverIDs)
     {
-        cout << "  Server Number: " << to_string(servers[n]->getServerNum()) << ", Running in folder: " << servers[n]->getWorkingDir() << ", With server jar: " << servers[n]->getJarFile() << endl;
+        cout << "  Server Number: " << to_string(servers[i]->getServerNum()) << ", Running in folder: " << servers[i]->getWorkingDir() << ", With server jar: " << servers[i]->getJarFile() << endl;
     }
 }
 
@@ -173,9 +234,8 @@ int menuLog()
     string input;
 
     cout << "Enter the server number to view the log of: ";
-    getline(cin, input);
 
-    int serverNum = stoi(input);
+    int serverNum = getNumberFromUser();
 
     bool validID = false;
 
@@ -190,9 +250,8 @@ int menuLog()
     while (!validID)
     {
         cout << "That ID does not exist, please enter a different one: ";
-        getline(cin, input);
 
-        serverNum = stoi(input);
+        serverNum = getNumberFromUser();
 
         validID = false;
 
@@ -215,9 +274,8 @@ int menuInteract()
     string input;
 
     cout << "Enter the server number to interact with: ";
-    getline(cin, input);
 
-    int serverNum = stoi(input);
+    int serverNum = getNumberFromUser();
 
     bool validID = false;
 
@@ -232,9 +290,8 @@ int menuInteract()
     while (!validID)
     {
         cout << "That ID does not exist, please enter a different one: ";
-        getline(cin, input);
 
-        serverNum = stoi(input);
+        serverNum = getNumberFromUser();
 
         validID = false;
 
@@ -264,9 +321,8 @@ int menuStop(int serverNum)
         string input;
 
         cout << "Enter the server number to stop: ";
-        getline(cin, input);
 
-        serverNum = stoi(input);
+        serverNum = getNumberFromUser();
 
         bool validID = false;
 
@@ -281,9 +337,8 @@ int menuStop(int serverNum)
         while (!validID)
         {
             cout << "That ID does not exist, please enter a different one: ";
-            getline(cin, input);
 
-            serverNum = stoi(input);
+            serverNum = getNumberFromUser();
 
             validID = false;
 
@@ -316,4 +371,41 @@ int menuStop(int serverNum)
     }
 
     return 0;
+}
+
+int getNumberFromUser()
+{
+    int serverNum;
+    bool validNum = true;
+    string input;
+
+    getline(cin, input);
+
+    try
+    {
+        serverNum = stoi(input);
+    }
+    catch(const invalid_argument& e)
+    {
+        validNum = false;
+    }
+
+    while (!validNum)
+    {
+        cout << "Invalid input, please enter a number: ";
+        getline(cin, input);
+
+        validNum = true;
+
+        try
+        {
+            serverNum = stoi(input);
+        }
+        catch(const invalid_argument& e)
+        {
+            validNum = false;
+        }
+    }
+
+    return serverNum;
 }

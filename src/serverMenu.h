@@ -14,6 +14,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <sys/stat.h>
 #include "mcServer.h"
 
 using namespace std;
@@ -29,5 +30,6 @@ void menuList();
 int menuLog();
 int menuInteract();
 int menuStop(int serverID);
+int getNumberFromUser();
 
 #endif // __SERVERMENU_H_
