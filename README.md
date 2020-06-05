@@ -12,7 +12,6 @@ To build, run:
 ```sh
 git clone https://github.com/neboman11/Minecraft-Daemon
 cd Minecraft-Daemon
-git submodule update --init --recursive
 mkdir build
 cd build
 cmake ..
