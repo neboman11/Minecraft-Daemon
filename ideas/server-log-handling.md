@@ -1,5 +1,9 @@
 # Server Logs: Memory vs File
 
+## Status - Implemented
+
+Current implementation is memory.
+
 ## Memory
 
 ### Memory Pros
@@ -35,7 +39,3 @@ How are updates handled for requesters? (Requesters have keep-alive on if the da
 - knowing when a new line is added to the log
 - slower access times
 - need to keep track of file directories (possible differing structures for different server versions
-
-## Status - Implemented
-
-Current implementation is memory.
