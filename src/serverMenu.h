@@ -16,6 +16,7 @@
 #include <string>
 #include <sys/stat.h>
 #include "mcServer.h"
+#include "sqlFunc.h"
 
 using namespace std;
 

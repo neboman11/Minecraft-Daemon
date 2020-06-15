@@ -218,6 +218,10 @@ int menuStart()
     // Create a new server child process
     servers[serverNum] = new MCServer(serverArgs.data(), serverDir, serverJar, serverNum);
 
+    writeLog("Adding server to the database");
+
+    addServerDB(serverNum, "howdy", serverDir, serverJar);
+
     return 0;
 }
 

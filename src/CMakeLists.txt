@@ -30,7 +30,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 # Add libraries
-target_link_libraries(Minecraft-Daemon Threads::Threads rudeconfig)
+target_link_libraries(Minecraft-Daemon Threads::Threads rudeconfig sqlite3)
 
 # Include binary directory for the versionConfig.h file
 target_include_directories(Minecraft-Daemon PUBLIC

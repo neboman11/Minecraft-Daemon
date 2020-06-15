@@ -18,6 +18,7 @@
 #include "helperFunc.h"
 #include "mcServer.h"
 #include "serverMenu.h"
+#include "sqlFunc.h"
 
 // Pointer to ofstream object that is the log file
 ofstream* logFile;
@@ -33,7 +34,6 @@ vector<int> serverIDs;
 // Function prototypes
 void createPIDFile(pid_t mypid);
 int initialize();
-int cppursesMenu();
 
 int main (int argc, char** argv)
 {
@@ -55,8 +55,6 @@ int main (int argc, char** argv)
         // Return the error value
         return status;
     }
-
-    
 
     serverMenu();
 
