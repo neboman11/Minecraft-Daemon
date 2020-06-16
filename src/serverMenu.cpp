@@ -39,12 +39,26 @@ int serverMenu()
             menuCreate();
             break;
         case 's':
-            // TODO check if there are any available servers
-            menuStart();
+            if (serverIDs.size() > 0)
+            {
+                menuStart();
+            }
+
+            else
+            {
+                cout << "No servers have been created. Create a server first." << endl;
+            }
             break;
         case 'l':
-            // TODO check if there are any available servers
-            menuList();
+            if (serverIDs.size() > 0)
+            {
+                menuList();
+            }
+
+            else
+            {
+                cout << "No servers have been created. Create a server first." << endl;
+            }
             break;
         case 'r':
             if (runningServers.size() > 0)
@@ -58,8 +72,15 @@ int serverMenu()
             }
             break;
         case 'm':
-            // TODO Check if there are any available servers
-            menuListStopped();
+            if (serverIDs.size() == runningServers.size())
+            {
+                menuStart();
+            }
+
+            else
+            {
+                cout << "All available servers are running." << endl;
+            }
             break;
         case 'o':
             if (runningServers.size() > 0)
@@ -112,11 +133,25 @@ void menuStart()
 
     int serverNum = getValidStoppedServer();
 
-    cout << serverNum << endl;
+    map<int, string> serverData;
 
-    // TODO query server data from database
-    // TODO start server
-    // TODO add server to list of running servers
+    // Query server data from database
+    queryServerData(serverNum, serverData);
+
+    string serverPath = serverData[DIRECTORY] + "/" + serverData[JARFILE];
+
+    vector<char*> serverArgs;
+    serverArgs.push_back((char*)"java");
+    serverArgs.push_back((char*)"-jar");
+    serverArgs.push_back((char*)serverPath.c_str());
+    serverArgs.push_back((char*)"nogui");
+    serverArgs.push_back((char*)nullptr);
+
+    writeLog("Starting server " + serverData[NAME]);
+    // Create a new server child process
+    servers[serverNum] = new MCServer(serverArgs.data(), serverData[DIRECTORY], serverNum);
+
+    runningServers.push_back(serverNum);
 }
 
 void menuListRunning()
@@ -126,7 +161,9 @@ void menuListRunning()
 
     for (auto i : runningServers)
     {
-        cout << "  Server Number: " << to_string(servers[i]->getServerNum()) << ", Running in folder: " << servers[i]->getWorkingDir() << ", With server jar: " << servers[i]->getJarFile() << endl;
+        map<int, string> serverData;
+            queryServerData(i, serverData);
+            cout << "  " + serverData[NAME] + " - Server Number: " << serverData[ID] << ", Server folder: " << serverData[DIRECTORY] << ", Server jar: " << serverData[JARFILE] << endl;
     }
 }
 
@@ -238,7 +275,7 @@ void menuCreate()
 
     bool duplicateID = false;
 
-    for (auto i : runningServers)
+    for (auto i : serverIDs)
     {
         if (i == serverNum)
         {
@@ -254,7 +291,7 @@ void menuCreate()
 
         duplicateID = false;
 
-        for (auto i : runningServers)
+        for (auto i : serverIDs)
         {
             if (i == serverNum)
             {
@@ -262,8 +299,6 @@ void menuCreate()
             }
         }
     }
-
-    runningServers.push_back(serverNum);
 
     string serverDir;
 
@@ -359,7 +394,9 @@ void menuCreate()
         writeLog("Creating server with ID: " + to_string(serverNum) + " in folder: " + serverDir + " with jar file: " + serverJar);
 
         // Create a new server child process
-        servers[serverNum] = new MCServer(serverArgs.data(), serverDir, serverJar, serverNum);
+        servers[serverNum] = new MCServer(serverArgs.data(), serverDir, serverNum);
+
+        runningServers.push_back(serverNum);
     }
 }
 
@@ -387,7 +424,9 @@ void menuListStopped()
 
         if (!runningID)
         {
-            cout << "  Server Number: " << to_string(servers[i]->getServerNum()) << ", Server folder: " << servers[i]->getWorkingDir() << ", Server jar: " << servers[i]->getJarFile() << endl;
+            map<int, string> serverData;
+            queryServerData(i, serverData);
+            cout << "  " + serverData[NAME] + " - Server Number: " << serverData[ID] << ", Server folder: " << serverData[DIRECTORY] << ", Server jar: " << serverData[JARFILE] << endl;
         }
     }
 }

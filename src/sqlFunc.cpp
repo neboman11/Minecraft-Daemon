@@ -9,7 +9,7 @@
 
 #include "sqlFunc.h"
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName)
+static int callback(void* NotUsed, int argc, char **argv, char **azColName)
 {
    int i;
    for(i = 0; i<argc; i++)
@@ -20,11 +20,23 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName)
    return 0;
 }
 
-static int loadIDsCallback(void *NotUsed, int numCols, char** rowData, char **azColName)
+static int loadIDsCallback(void* NotUsed, int numCols, char** rowData, char** azColName)
 {
    serverIDs.push_back(stoi(rowData[0]));
    writeLog(string("Found server: ") + rowData[1] + ", ID: " + rowData[0], ((long long)NotUsed || numCols || azColName || true));
    return 0;
+}
+
+static int queryServerDataCallback(void* _serverData, int numCols, char** rowData, char** azColName)
+{
+    map<int, string>* serverData = (map<int, string>*)_serverData;
+
+    serverData->operator[](ID) = rowData[0];
+    serverData->operator[](NAME) = rowData[1];
+    serverData->operator[](DIRECTORY) = rowData[2];
+    serverData->operator[](JARFILE) = rowData[3];
+
+    return 0 && numCols && azColName;
 }
 
 int createDB(string dbFile)
@@ -145,4 +157,37 @@ int loadIDs()
     sqlite3_close(db);
 
     return 0;
+}
+
+void queryServerData(int serverNum, map<int, string>& serverData)
+{
+    sqlite3* db;
+    int rc;
+
+    rc = sqlite3_open(configOptions[DATABASE_FILE].c_str(), &db);
+
+    if( rc )
+    {
+        writeLog(string("Can't open database: ") + sqlite3_errmsg(db));
+    }
+    else
+    {
+        writeLog("Opened database successfully");
+    }
+
+    string sql = "SELECT * FROM Servers WHERE ID = " + to_string(serverNum) + ";";
+    char* zErrMsg = 0;
+
+    rc = sqlite3_exec(db, sql.c_str(), queryServerDataCallback, (void*)&serverData, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+        writeLog("Error querying database: " + string(zErrMsg));
+        sqlite3_free(zErrMsg);
+    } 
+    else
+    {
+        writeLog("Records loaded successfully!");
+    }
+
+    sqlite3_close(db);
 }

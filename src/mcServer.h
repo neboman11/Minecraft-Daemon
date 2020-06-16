@@ -22,10 +22,6 @@ class MCServer
 private:
     // The unique identifier of the server
     int serverNum;
-    // The directory the server is running in
-    string workingDir;
-    // The name of the server jar file
-    string serverJar;
     // The server's log
     ServerLog* log;
     // Array of pipes for stdout and stdin for the child
@@ -44,17 +40,13 @@ private:
 
 public:
     // Create a new serverLog with the given max size
-    MCServer(char* const* arguments, string workDir, string jarFile, int childNum);
+    MCServer(char* const* arguments, string workDir, int childNum);
 
     ~MCServer();
     // Get the log as a single string
     string getLog();
     // Get the number of this server
     int getServerNum();
-    // Get the working directory of this server
-    string getWorkingDir();
-    // Get the jar file name of this server
-    string getJarFile();
     // Add a new line to the server log and write it to the activeOutput
     void addLogLine(string s);
     void addLogLine(char* s);

@@ -55,3 +55,6 @@ config.status
 build/*
 /.vs
 /out/build/x64-Debug (default)
+
+# Test database
+test.db
