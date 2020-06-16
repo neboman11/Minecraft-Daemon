@@ -40,11 +40,11 @@ private:
     ostream* activeOutput = nullptr;
 
     int spawnLogWatcher();
-    int spawnChild(char* arguments[], string workDir);
+    int spawnChild(char* const* arguments, string workDir);
 
 public:
     // Create a new serverLog with the given max size
-    MCServer(char* arguments[], string workDir, string jarFile, int childNum);
+    MCServer(char* const* arguments, string workDir, string jarFile, int childNum);
 
     ~MCServer();
     // Get the log as a single string

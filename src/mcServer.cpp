@@ -9,7 +9,7 @@
 
 #include "mcServer.h"
 
-MCServer::MCServer(char* arguments[], string workDir, string jarFile, int childNum)
+MCServer::MCServer(char* const* arguments, string workDir, string jarFile, int childNum)
 {
     this->serverNum = childNum;
     this->workingDir = workDir;
@@ -65,7 +65,7 @@ int MCServer::spawnLogWatcher()
     return 0;
 }
 
-int MCServer::spawnChild(char* arguments[], string workDir)
+int MCServer::spawnChild(char* const* arguments, string workDir)
 {
     // PID type for storing the process's PID
     pid_t mypid;
