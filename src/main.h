@@ -18,7 +18,7 @@ using namespace std;
 
 // Enumerator for readable map indexing
 enum flagOptions { DAEMON, CONFIG };
-enum configEnum { VERBOSE, LOG_FILE, JAVA_PATH };
+enum configEnum { VERBOSE, LOG_FILE, JAVA_PATH, DATABASE, DATABASE_FILE };
 
 // Global Variables
 // Pointer to ofstream object that is the log file

@@ -14,17 +14,13 @@ map<int, string> readConfig(string confFile)
     // Map for holding all the read config options.
     map<int, string> configOptions;
 
-    // tao::config::value fileConfig;
-
-    // fileConfig = tao::config::basic_from_file(confFile);
-
     // Create a rude config object
     rude::Config config;
 
     // Load the given config file
     if(config.load(confFile.c_str()))
     {
-        // Try to change to the parameters section, if it does not exists, this returns false.
+        // Try to change to the daemon section, if it does not exists, this returns false.
         if (config.setSection("Daemon", false))
         {
             // If the verbose flag is present in the config file
@@ -92,6 +88,51 @@ map<int, string> readConfig(string confFile)
         {
             // Write an error message to the screen
             cerr << "Daemon section missing from config file." << endl;
+            // Exit the program
+            exit(9);
+        }
+
+        // Try to change to the database section, if it does not exists, this returns false.
+        if (config.setSection("Database", false))
+        {
+            // If the database flag is preset in the config file
+            if (config.exists("Database"))
+            {
+                // Set the database value
+                configOptions[DATABASE] = config.getStringValue("Database");
+            }
+
+            // If the database flag was not present
+            else
+            {
+                // Write an error message to the screen
+                cerr << "Database flag missing from config file." << endl;
+                // Exit the program
+                exit(8);
+            }
+
+            // If the database file flag is preset in the config file
+            if (config.exists("Database-File"))
+            {
+                // Set the database file value
+                configOptions[DATABASE_FILE] = config.getStringValue("Database-File");
+            }
+
+            // If the database file flag was not present
+            else
+            {
+                // Write an error message to the screen
+                cerr << "Database file flag missing from config file." << endl;
+                // Exit the program
+                exit(8);
+            }
+        }
+
+        // If the database section is missing
+        else
+        {
+            // Write an error message to the screen
+            cerr << "Database section missing from config file." << endl;
             // Exit the program
             exit(9);
         }

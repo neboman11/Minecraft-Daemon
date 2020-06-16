@@ -19,8 +19,11 @@ int serverMenu()
     do
     {
         cout << "Choose an option:" << endl;
-        cout << "[s] Start a server" << endl;
-        cout << "[l] List all running servers" << endl;
+        cout << "[c] Create a new server" << endl;
+        cout << "[s] Start an existing server" << endl;
+        cout << "[l] List all servers" << endl;
+        cout << "[r] List all running servers" << endl;
+        cout << "[m] List all stopped servers" << endl;
         cout << "[o] View a server's output" << endl;
         cout << "[i] Interact with a running server" << endl;
         cout << "[k] Stop a running server" << endl;
@@ -32,23 +35,34 @@ int serverMenu()
 
         switch (choice)
         {
+        case 'c':
+            menuCreate();
+            break;
         case 's':
+            // TODO check if there are any available servers
             menuStart();
             break;
         case 'l':
-            if (serverIDs.size() > 0)
+            // TODO check if there are any available servers
+            menuList();
+            break;
+        case 'r':
+            if (runningServers.size() > 0)
             {
-                menuList();
+                menuListRunning();
             }
 
             else
             {
                 cout << "There are currently no running servers." << endl;
             }
-
+            break;
+        case 'm':
+            // TODO Check if there are any available servers
+            menuListStopped();
             break;
         case 'o':
-            if (serverIDs.size() > 0)
+            if (runningServers.size() > 0)
             {
                 menuLog();
             }
@@ -57,10 +71,9 @@ int serverMenu()
             {
                 cout << "There are currently no running servers." << endl;
             }
-
             break;
         case 'i':
-            if (serverIDs.size() > 0)
+            if (runningServers.size() > 0)
             {
                 menuInteract();
             }
@@ -69,10 +82,9 @@ int serverMenu()
             {
                 cout << "There are currently no running servers." << endl;
             }
-
             break;
         case 'k':
-            if (serverIDs.size() > 0)
+            if (runningServers.size() > 0)
             {
                 menuStop(-1);
             }
@@ -81,7 +93,6 @@ int serverMenu()
             {
                 cout << "There are currently no running servers." << endl;
             }
-
             break;
         case '0':
             break;
@@ -95,141 +106,25 @@ int serverMenu()
     return 0;
 }
 
-int menuStart()
+void menuStart()
 {
-    string input;
+    cout << "Enter the server number to start: ";
 
-    cout << "Enter a unique number for the server: ";
+    int serverNum = getValidStoppedServer();
 
-    int serverNum = getNumberFromUser();
+    cout << serverNum << endl;
 
-    bool duplicateID = false;
-
-    for (auto i : serverIDs)
-    {
-        if (i == serverNum)
-        {
-            duplicateID = true;
-        }
-    }
-
-    while (duplicateID)
-    {
-        cout << "That ID has already been used, please enter a different one: ";
-
-        serverNum = getNumberFromUser();
-
-        duplicateID = false;
-
-        for (auto i : serverIDs)
-        {
-            if (i == serverNum)
-            {
-                duplicateID = true;
-            }
-        }
-    }
-
-    serverIDs.push_back(serverNum);
-
-    cout << "Enter the folder to run the server in: ";
-    getline(cin, input);
-
-    string serverDir = input;
-
-    // Stat struct for using the stat function to determine if the file exists
-    struct stat fileStatus;
-    // Stat the PID file to see if it exists
-    int temp = stat(serverDir.c_str(), &fileStatus);
-    // Whether or not the user entered a valid directory
-    bool validDir = false;
-
-    // If stat returned anything other than -1, the directory exists
-    if (temp != -1)
-    {
-        // Set validDir to true
-        validDir = true;
-    }
-
-    while (!validDir)
-    {
-        cout << "That folder does not exist, please enter a different directory: ";
-        getline(cin, input);
-
-        serverDir = input;
-
-        // Stat the PID file to see if it exists
-        temp = stat(serverDir.c_str(), &fileStatus);
-
-        // If stat returned anything other than -1, the directory exists
-        if (temp != -1)
-        {
-            // Set validDir to true
-            validDir = true;
-        }
-    }
-
-    cout << "Enter the name of the server jar file: ";
-    getline(cin, input);
-
-    string serverJar = input;
-    string serverPath = serverDir + "/" + serverJar;
-
-    // Stat the PID file to see if it exists
-    temp = stat(serverPath.c_str(), &fileStatus);
-    // Whether or not the user entered a valid directory
-    validDir = false;
-
-    // If stat returned anything other than -1, the directory exists
-    if (temp != -1)
-    {
-        // Set validDir to true
-        validDir = true;
-    }
-
-    while (!validDir)
-    {
-        cout << "That file does not exist, please enter a valid server jar file: ";
-        getline(cin, input);
-
-        serverJar = input;
-        serverPath = serverDir + "/" + serverJar;
-
-        // Stat the PID file to see if it exists
-        temp = stat(serverPath.c_str(), &fileStatus);
-
-        // If stat returned anything other than -1, the directory exists
-        if (temp != -1)
-        {
-            // Set validDir to true
-            validDir = true;
-        }
-    }
-
-    vector<char*> serverArgs;
-    serverArgs.push_back((char*)"java");
-    serverArgs.push_back((char*)"-jar");
-    serverArgs.push_back((char*)serverPath.c_str());
-    serverArgs.push_back((char*)"nogui");
-    serverArgs.push_back((char*)nullptr);
-
-    writeLog("Creating server with ID: " + to_string(serverNum) + " in folder: " + serverDir + " with jar file: " + serverJar);
-
-    // Create a new server child process
-    servers[serverNum] = new MCServer(serverArgs.data(), serverDir, serverJar, serverNum);
-
-    writeLog("Adding server to the database");
-
-    addServerDB(serverNum, "howdy", serverDir, serverJar);
-
-    return 0;
+    // TODO query server data from database
+    // TODO start server
+    // TODO add server to list of running servers
 }
 
-void menuList()
+void menuListRunning()
 {
-    cout << "These are all the current running servers:" << endl;
+    // TODO: query data from database
+    cout << "These are all the currently running servers:" << endl;
 
-    for (auto i : serverIDs)
+    for (auto i : runningServers)
     {
         cout << "  Server Number: " << to_string(servers[i]->getServerNum()) << ", Running in folder: " << servers[i]->getWorkingDir() << ", With server jar: " << servers[i]->getJarFile() << endl;
     }
@@ -237,38 +132,9 @@ void menuList()
 
 int menuLog()
 {
-    string input;
-
     cout << "Enter the server number to view the log of: ";
 
-    int serverNum = getNumberFromUser();
-
-    bool validID = false;
-
-    for (auto i : serverIDs)
-    {
-        if (i == serverNum)
-        {
-            validID = true;
-        }
-    }
-
-    while (!validID)
-    {
-        cout << "That ID does not exist, please enter a different one: ";
-
-        serverNum = getNumberFromUser();
-
-        validID = false;
-
-        for (auto i : serverIDs)
-        {
-            if (i == serverNum)
-            {
-                validID = true;
-            }
-        }
-    }
+    int serverNum = getValidRunningServer();
 
     cout << servers[serverNum]->getLog() << endl;
 
@@ -277,38 +143,9 @@ int menuLog()
 
 int menuInteract()
 {
-    string input;
-
     cout << "Enter the server number to interact with: ";
 
-    int serverNum = getNumberFromUser();
-
-    bool validID = false;
-
-    for (auto i : serverIDs)
-    {
-        if (i == serverNum)
-        {
-            validID = true;
-        }
-    }
-
-    while (!validID)
-    {
-        cout << "That ID does not exist, please enter a different one: ";
-
-        serverNum = getNumberFromUser();
-
-        validID = false;
-
-        for (auto i : serverIDs)
-        {
-            if (i == serverNum)
-            {
-                validID = true;
-            }
-        }
-    }
+    int serverNum = getValidRunningServer();
 
     int status = servers[serverNum]->interact(&cout);
 
@@ -324,38 +161,9 @@ int menuStop(int serverNum)
 {
     if (serverNum == -1)
     {
-        string input;
-
         cout << "Enter the server number to stop: ";
 
-        serverNum = getNumberFromUser();
-
-        bool validID = false;
-
-        for (auto i : serverIDs)
-        {
-            if (i == serverNum)
-            {
-                validID = true;
-            }
-        }
-
-        while (!validID)
-        {
-            cout << "That ID does not exist, please enter a different one: ";
-
-            serverNum = getNumberFromUser();
-
-            validID = false;
-
-            for (auto i : serverIDs)
-            {
-                if (i == serverNum)
-                {
-                    validID = true;
-                }
-            }
-        }
+        serverNum = getValidRunningServer();
     }
 
     writeLog("Shutting down server: " + to_string(serverNum));
@@ -364,13 +172,13 @@ int menuStop(int serverNum)
 
     delete servers[serverNum];
 
-    auto iter = serverIDs.begin();
+    auto iter = runningServers.begin();
 
-    for (unsigned long i = 0; i < serverIDs.size(); i++)
+    for (unsigned long i = 0; i < runningServers.size(); i++)
     {
-        if (serverIDs.at(i) == serverNum)
+        if (runningServers.at(i) == serverNum)
         {
-            serverIDs.erase(iter);
+            runningServers.erase(iter);
         }
 
         iter++;
@@ -414,4 +222,319 @@ int getNumberFromUser()
     }
 
     return serverNum;
+}
+
+void menuCreate()
+{
+    cout << "Enter a name for the server: ";
+
+    string serverName;
+
+    getline(cin, serverName);
+
+    cout << "Enter a unique number for the server: ";
+
+    int serverNum = getNumberFromUser();
+
+    bool duplicateID = false;
+
+    for (auto i : runningServers)
+    {
+        if (i == serverNum)
+        {
+            duplicateID = true;
+        }
+    }
+
+    while (duplicateID)
+    {
+        cout << "That ID has already been used, please enter a different one: ";
+
+        serverNum = getNumberFromUser();
+
+        duplicateID = false;
+
+        for (auto i : runningServers)
+        {
+            if (i == serverNum)
+            {
+                duplicateID = true;
+            }
+        }
+    }
+
+    runningServers.push_back(serverNum);
+
+    string serverDir;
+
+    cout << "Enter the folder to run the server in: ";
+    getline(cin, serverDir);
+
+    // Stat struct for using the stat function to determine if the file exists
+    struct stat fileStatus;
+    // Stat the PID file to see if it exists
+    int temp = stat(serverDir.c_str(), &fileStatus);
+    // Whether or not the user entered a valid directory
+    bool validDir = false;
+
+    // If stat returned anything other than -1, the directory exists
+    if (temp != -1)
+    {
+        // Set validDir to true
+        validDir = true;
+    }
+
+    while (!validDir)
+    {
+        cout << "That folder does not exist, please enter a different directory: ";
+        getline(cin, serverDir);
+
+        // Stat the PID file to see if it exists
+        temp = stat(serverDir.c_str(), &fileStatus);
+
+        // If stat returned anything other than -1, the directory exists
+        if (temp != -1)
+        {
+            // Set validDir to true
+            validDir = true;
+        }
+    }
+
+    string serverJar;
+
+    cout << "Enter the name of the server jar file: ";
+    getline(cin, serverJar);
+
+    string serverPath = serverDir + "/" + serverJar;
+
+    // Stat the PID file to see if it exists
+    temp = stat(serverPath.c_str(), &fileStatus);
+    // Whether or not the user entered a valid directory
+    validDir = false;
+
+    // If stat returned anything other than -1, the directory exists
+    if (temp != -1)
+    {
+        // Set validDir to true
+        validDir = true;
+    }
+
+    while (!validDir)
+    {
+        cout << "That file does not exist, please enter a valid server jar file: ";
+        getline(cin, serverJar);
+
+        serverPath = serverDir + "/" + serverJar;
+
+        // Stat the PID file to see if it exists
+        temp = stat(serverPath.c_str(), &fileStatus);
+
+        // If stat returned anything other than -1, the directory exists
+        if (temp != -1)
+        {
+            // Set validDir to true
+            validDir = true;
+        }
+    }
+
+    writeLog("Adding server to the database");
+
+    addServerDB(serverNum, serverName, serverDir, serverJar);
+
+    bool startServer = false;
+
+    cout << "Server was successfully created. Would you like to start it now? (y/n): ";
+
+    startServer = getYesOrNo();
+
+    if (startServer)
+    {
+        vector<char*> serverArgs;
+        serverArgs.push_back((char*)"java");
+        serverArgs.push_back((char*)"-jar");
+        serverArgs.push_back((char*)serverPath.c_str());
+        serverArgs.push_back((char*)"nogui");
+        serverArgs.push_back((char*)nullptr);
+
+        writeLog("Creating server with ID: " + to_string(serverNum) + " in folder: " + serverDir + " with jar file: " + serverJar);
+
+        // Create a new server child process
+        servers[serverNum] = new MCServer(serverArgs.data(), serverDir, serverJar, serverNum);
+    }
+}
+
+void menuList()
+{
+    menuListRunning();
+    menuListStopped();
+}
+
+void menuListStopped()
+{
+    // TODO: query data from database
+    cout << "These are all the current stopped servers:" << endl;
+
+    for (auto i : serverIDs)
+    {
+        bool runningID = false;
+        for (auto j : runningServers)
+        {
+            if (i == j)
+            {
+                runningID = true;
+            }
+        }
+
+        if (!runningID)
+        {
+            cout << "  Server Number: " << to_string(servers[i]->getServerNum()) << ", Server folder: " << servers[i]->getWorkingDir() << ", Server jar: " << servers[i]->getJarFile() << endl;
+        }
+    }
+}
+
+int getValidRunningServer()
+{
+    int serverNum = getNumberFromUser();
+
+    bool validID = false;
+
+    for (auto i : runningServers)
+    {
+        if (i == serverNum)
+        {
+            validID = true;
+        }
+    }
+
+    while (!validID)
+    {
+        cout << "That ID does not exist, please enter a different one: ";
+
+        serverNum = getNumberFromUser();
+
+        validID = false;
+
+        for (auto i : runningServers)
+        {
+            if (i == serverNum)
+            {
+                validID = true;
+            }
+        }
+    }
+
+    return serverNum;
+}
+
+int getValidStoppedServer()
+{
+    int serverNum = getNumberFromUser();
+
+    bool validID = false;
+    bool runningID = false;
+
+    for (auto i : serverIDs)
+    {
+        if (i == serverNum)
+        {
+            validID = true;
+        }
+    }
+
+    if (validID)
+    {
+        for (auto i : runningServers)
+        {
+            if (i == serverNum)
+            {
+                runningID = true;
+            }
+        }
+    }
+
+    while (!validID || runningID)
+    {
+        if (!validID)
+        {
+            cout << "That ID does not exist, please enter a different one: ";
+        }
+        else if (runningID)
+        {
+            cout << "That server is already running, please enter a differnt one: ";
+        }
+
+        serverNum = getNumberFromUser();
+
+        validID = false;
+
+        for (auto i : serverIDs)
+        {
+            if (i == serverNum)
+            {
+                validID = true;
+            }
+        }
+
+        if (validID)
+        {
+            runningID = false;
+
+            for (auto i : runningServers)
+            {
+                if (i == serverNum)
+                {
+                    runningID = true;
+                }
+            }
+        }
+    }
+
+    return serverNum;
+}
+
+bool getYesOrNo()
+{
+    bool answer = false;
+    bool validAnswer = false;
+    string input;
+
+    getline(cin, input);
+
+    if (input == "y" || input == "Y" || input == "yes" || input == "Yes" || input == "YES")
+    {
+        answer = true;
+        validAnswer = true;
+    }
+    else if (input == "n" || input == "N" || input == "no" || input == "No" || input == "NO")
+    {
+        answer = false;
+        validAnswer = true;
+    }
+    else
+    {
+        validAnswer = false;
+    }
+
+    while (!validAnswer)
+    {
+        cout << "Invalid input, please enter yes or no: ";
+        getline(cin, input);
+
+        if (input == "y" || input == "Y" || input == "yes" || input == "Yes" || input == "YES")
+        {
+            answer = true;
+            validAnswer = true;
+        }
+        else if (input == "n" || input == "N" || input == "no" || input == "No" || input == "NO")
+        {
+            answer = false;
+            validAnswer = true;
+        }
+        else
+        {
+            validAnswer = false;
+        }
+    }
+
+    return answer;
 }

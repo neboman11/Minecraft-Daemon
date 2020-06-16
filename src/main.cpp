@@ -30,6 +30,8 @@ map<int, string> configOptions;
 map<int, MCServer*> servers;
 // List of server IDs
 vector<int> serverIDs;
+// List of running servers
+vector<int> runningServers;
 
 // Function prototypes
 void createPIDFile(pid_t mypid);
@@ -56,7 +58,10 @@ int main (int argc, char** argv)
         return status;
     }
 
-    serverMenu();
+    if (inputOptions[DAEMON] != "true")
+    {
+        serverMenu();
+    }
 
     // Tell the user what's happening
     writeLog("Exiting...");
@@ -173,6 +178,25 @@ int initialize()
 
     // Create the PID file
     createPIDFile(mypid);
+
+    // Check which database backend is being used
+    if (configOptions[DATABASE] == "sqlite")
+    {
+        // Check if the database file exists
+        temp = stat(configOptions[DATABASE_FILE].c_str(), &fileStatus);
+
+        // If stat returned -1, the file doesn't exists
+        if (temp == -1)
+        {
+            createDB(configOptions[DATABASE_FILE]);
+        }
+        // If stat returned anything else, the database already exists
+        else
+        {
+            // Load in all the stored server IDs from the database
+            loadIDs();
+        }
+    }
 
     // Write the read in config settings to the log
     printConfig();

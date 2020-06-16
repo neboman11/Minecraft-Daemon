@@ -24,13 +24,21 @@ using namespace std;
 extern map<int, MCServer*> servers;
 // List of server IDs
 extern vector<int> serverIDs;
+// List of running servers
+extern vector<int> runningServers;
 
 int serverMenu();
-int menuStart();
-void menuList();
+void menuStart();
+void menuListRunning();
 int menuLog();
 int menuInteract();
 int menuStop(int serverID);
 int getNumberFromUser();
+void menuCreate();
+void menuList();
+void menuListStopped();
+int getValidRunningServer();
+int getValidStoppedServer();
+bool getYesOrNo();
 
 #endif // __SERVERMENU_H_

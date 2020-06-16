@@ -20,26 +20,30 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName)
    return 0;
 }
 
-// TODO: when does this need to be called?
-// Stat the database file in initialization in main and create it if it doesn't exist?
-// Installer program/script?
-int createDB()
+static int loadIDsCallback(void *NotUsed, int numCols, char** rowData, char **azColName)
+{
+   serverIDs.push_back(stoi(rowData[0]));
+   writeLog(string("Found server: ") + rowData[1] + ", ID: " + rowData[0], ((long long)NotUsed || numCols || azColName || true));
+   return 0;
+}
+
+int createDB(string dbFile)
 {
     sqlite3* db;
     char* zErrMsg = 0;
     int rc;
     string sql;
 
-    rc = sqlite3_open("test.db", &db);
+    rc = sqlite3_open(dbFile.c_str(), &db);
 
     if( rc )
     {
         writeLog(string("Can't open database: ") + sqlite3_errmsg(db));
-        return(1);
+        return 1;
     }
     else
     {
-        writeLog("Opened database successfully");
+        writeLog("Created database successfully");
     }
 
     /* Create SQL statement */
@@ -73,7 +77,7 @@ int addServerDB(int serverNum, string serverName, string serverDir, string serve
     sqlite3* db;
     int rc;
 
-    rc = sqlite3_open("test.db", &db);
+    rc = sqlite3_open(configOptions[DATABASE_FILE].c_str(), &db);
 
     if( rc )
     {
@@ -92,13 +96,50 @@ int addServerDB(int serverNum, string serverName, string serverDir, string serve
     rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);
     if (rc != SQLITE_OK)
     {
-        writeLog("Error Inserting into database: " + string(zErrMsg));
+        writeLog("Error inserting into database: " + string(zErrMsg));
         sqlite3_free(zErrMsg);
         return 1;
     } 
     else
     {
-        writeLog("Record created Successfully!");
+        writeLog("Record created successfully!");
+    }
+
+    sqlite3_close(db);
+
+    return 0;
+}
+
+int loadIDs()
+{
+    sqlite3* db;
+    int rc;
+
+    rc = sqlite3_open(configOptions[DATABASE_FILE].c_str(), &db);
+
+    if( rc )
+    {
+        writeLog(string("Can't open database: ") + sqlite3_errmsg(db));
+        return 1;
+    }
+    else
+    {
+        writeLog("Opened database successfully");
+    }
+
+    string sql = "SELECT * FROM Servers;";
+    char* zErrMsg = 0;
+
+    rc = sqlite3_exec(db, sql.c_str(), loadIDsCallback, 0, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+        writeLog("Error querying database: " + string(zErrMsg));
+        sqlite3_free(zErrMsg);
+        return 1;
+    } 
+    else
+    {
+        writeLog("Records loaded successfully!");
     }
 
     sqlite3_close(db);

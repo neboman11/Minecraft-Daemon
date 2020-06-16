@@ -17,6 +17,8 @@ void printConfig()
     writeLog("\tVerbose: " + configOptions[VERBOSE], true);
     writeLog("\tLogFile: " + configOptions[LOG_FILE], true);
     writeLog("\tJava-Path: " + configOptions[JAVA_PATH], true);
+    writeLog("\tDatabase: " + configOptions[DATABASE], true);
+    writeLog("\tDatabase-file: " + configOptions[DATABASE_FILE], true);
 }
 
 char* trimNewLine(char* s, int size)

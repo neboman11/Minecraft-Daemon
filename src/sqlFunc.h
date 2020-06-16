@@ -11,9 +11,13 @@
 #define __SQLFUNC_H_
 
 #include <sqlite3.h>
+#include <vector>
 #include "loggingFunc.h"
 
-int createDB();
+extern std::vector<int> serverIDs;
+
+int createDB(string dbFile);
 int addServerDB(int serverNum, string serverName, string serverDir, string serverJar);
+int loadIDs();
 
 #endif // __SQLFUNC_H_
