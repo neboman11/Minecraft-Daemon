@@ -42,7 +42,7 @@ if (UNIX)
     target_compile_options(Minecraft-Daemon PRIVATE -Wall -Wpedantic -Wextra)
 endif (UNIX)
 
-elif (WIN32)
+if (WIN32)
     # Add compiler options
     target_compile_options(Minecraft-Daemon PRIVATE -Wall -Wextra)
 endif (WIN32)
