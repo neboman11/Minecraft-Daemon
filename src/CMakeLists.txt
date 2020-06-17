@@ -44,5 +44,5 @@ endif (UNIX)
 
 if (WIN32)
     # Add compiler options
-    target_compile_options(Minecraft-Daemon PRIVATE -Wall -Wextra)
+    target_compile_options(Minecraft-Daemon PRIVATE -Wall)
 endif (WIN32)
