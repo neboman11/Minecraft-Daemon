@@ -376,6 +376,8 @@ void menuCreate()
 
     addServerDB(serverNum, serverName, serverDir, serverJar);
 
+    serverIDs.push_back(serverNum);
+
     bool startServer = false;
 
     cout << "Server was successfully created. Would you like to start it now? (y/n): ";
