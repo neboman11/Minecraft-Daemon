@@ -39,11 +39,11 @@ private:
     int spawnLogWatcher();
     int spawnChild(char* const* arguments, string workDir);
     // Build the array of arguments that execv takes
-    static vector<char*> buildArgs(string runRAM, string startRAM, string serverPath);
+    static vector<char*> buildArgs(string runRAM, string startRAM, string javaArgs, string serverPath);
 
 public:
     // Create a new serverLog with the given max size
-    MCServer(string runRAM, string startRAM, string workDir, string jarFile, int childNum);
+    MCServer(string runRAM, string startRAM, string javaArgs, string workDir, string jarFile, int childNum);
 
     ~MCServer();
     // Get the log as a single string

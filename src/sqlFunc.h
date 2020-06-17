@@ -16,14 +16,12 @@
 
 extern std::vector<int> serverIDs;
 
-enum TableFields { ID, NAME, DIRECTORY, JARFILE, RUN_MEMORY, START_MEMORY };
+enum TableFields { ID, NAME, DIRECTORY, JARFILE, RUN_MEMORY, START_MEMORY, JAVA_ARGS };
 
 int createDB(string dbFile);
-int addServerDB(int serverNum, string serverName, string serverDir, string serverJar, string runRAM, string startRAM);
+int addServerDB(int serverNum, string serverName, string serverDir, string serverJar, string runRAM, string startRAM, string javaArgs);
 int loadIDs();
 void queryServerData(int serverNum, map<int, string>& serverData);
 void removeServerDB(int serverNum);
-
-// TODO: Write a function and callback that will query the database for a given server ID and place the data in a vector, map, etc
 
 #endif // __SQLFUNC_H_

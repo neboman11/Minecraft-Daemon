@@ -162,7 +162,7 @@ void menuStart()
 
     writeLog("Starting server " + serverData[NAME]);
     // Create a new server child process
-    servers[serverNum] = new MCServer(serverData[RUN_MEMORY], serverData[START_MEMORY], serverData[DIRECTORY], serverData[JARFILE], serverNum);
+    servers[serverNum] = new MCServer(serverData[RUN_MEMORY], serverData[START_MEMORY], serverData[JAVA_ARGS], serverData[DIRECTORY], serverData[JARFILE], serverNum);
 
     runningServers.push_back(serverNum);
 }
@@ -410,9 +410,20 @@ void menuCreate()
         startRAM = "256M";
     }
 
+    cout << "Would you like to enter addition arguments for Java? (y/n): ";
+
+    bool extraArgs = getYesOrNo();
+    string javaArgs = "";
+
+    if (extraArgs)
+    {
+        cout << "Enter all the arguments on a single line: ";
+        getline(cin, javaArgs);
+    }
+
     writeLog("Adding server to the database");
 
-    addServerDB(serverNum, serverName, serverDir, serverJar, runRAM, startRAM);
+    addServerDB(serverNum, serverName, serverDir, serverJar, runRAM, startRAM, javaArgs);
 
     serverIDs.push_back(serverNum);
 
@@ -427,7 +438,7 @@ void menuCreate()
         writeLog("Creating server with ID: " + to_string(serverNum) + " in folder: " + serverDir + " with jar file: " + serverJar + " with " + runRAM + " of RAM");
 
         // Create a new server child process
-        servers[serverNum] = new MCServer(runRAM, startRAM, serverDir, serverJar, serverNum);
+        servers[serverNum] = new MCServer(runRAM, startRAM, javaArgs, serverDir, serverJar, serverNum);
 
         runningServers.push_back(serverNum);
     }

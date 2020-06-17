@@ -26,8 +26,9 @@ static int queryServerDataCallback(void* _serverData, int numCols, char** rowDat
     serverData->operator[](JARFILE) = rowData[3];
     serverData->operator[](RUN_MEMORY) = rowData[4];
     serverData->operator[](START_MEMORY) = rowData[5];
+    serverData->operator[](JAVA_ARGS) = rowData[6];
 
-    return 0 && numCols && azColName;
+    return 0;
 }
 
 int createDB(string dbFile)
@@ -55,8 +56,9 @@ int createDB(string dbFile)
         NAME           TEXT    NOT NULL, \
         DIRECTORY      TEXT    NOT NULL, \
         JARFILE        TEXT    NOT NULL, \
-        RUN_MEMORY    TEXT    NOT NULL, \
-        START_MEMORY   TEXT    NOT NULL \
+        RUN_MEMORY     TEXT    NOT NULL, \
+        START_MEMORY   TEXT    NOT NULL, \
+        JAVA_ARGS      TEXT \
         );";
 
     /* Execute SQL statement */
@@ -77,7 +79,7 @@ int createDB(string dbFile)
     return 0;
 }
 
-int addServerDB(int serverNum, string serverName, string serverDir, string serverJar, string runRAM, string startRAM)
+int addServerDB(int serverNum, string serverName, string serverDir, string serverJar, string runRAM, string startRAM, string javaArgs)
 {
     sqlite3* db;
     int rc;
@@ -94,8 +96,8 @@ int addServerDB(int serverNum, string serverName, string serverDir, string serve
         writeLog("Opened database successfully");
     }
 
-    string sql = "INSERT INTO Servers (ID, NAME, DIRECTORY, JARFILE, RUN_MEMORY, START_MEMORY) "
-                 "VALUES (" + to_string(serverNum) + ", \"" + serverName + "\", \"" + serverDir + "\", \"" + serverJar + "\", \"" + runRAM + "\", \"" + startRAM + "\");";
+    string sql = "INSERT INTO Servers (ID, NAME, DIRECTORY, JARFILE, RUN_MEMORY, START_MEMORY, JAVA_ARGS) "
+                 "VALUES (" + to_string(serverNum) + ", \"" + serverName + "\", \"" + serverDir + "\", \"" + serverJar + "\", \"" + runRAM + "\", \"" + startRAM + "\", " + ((javaArgs == "") ? "null" : ("\"" + javaArgs + "\"")) + ");";
     char* zErrMsg = 0;
 
     rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);
