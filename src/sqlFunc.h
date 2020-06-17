@@ -16,10 +16,10 @@
 
 extern std::vector<int> serverIDs;
 
-enum TableFields { ID, NAME, DIRECTORY, JARFILE };
+enum TableFields { ID, NAME, DIRECTORY, JARFILE, RUN_MEMORY, START_MEMORY };
 
 int createDB(string dbFile);
-int addServerDB(int serverNum, string serverName, string serverDir, string serverJar);
+int addServerDB(int serverNum, string serverName, string serverDir, string serverJar, string runRAM, string startRAM);
 int loadIDs();
 void queryServerData(int serverNum, map<int, string>& serverData);
 void removeServerDB(int serverNum);

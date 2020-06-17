@@ -160,18 +160,9 @@ void menuStart()
     // Query server data from database
     queryServerData(serverNum, serverData);
 
-    string serverPath = serverData[DIRECTORY] + "/" + serverData[JARFILE];
-
-    vector<char*> serverArgs;
-    serverArgs.push_back((char*)"java");
-    serverArgs.push_back((char*)"-jar");
-    serverArgs.push_back((char*)serverPath.c_str());
-    serverArgs.push_back((char*)"nogui");
-    serverArgs.push_back((char*)nullptr);
-
     writeLog("Starting server " + serverData[NAME]);
     // Create a new server child process
-    servers[serverNum] = new MCServer(serverArgs.data(), serverData[DIRECTORY], serverNum);
+    servers[serverNum] = new MCServer(serverData[RUN_MEMORY], serverData[START_MEMORY], serverData[DIRECTORY], serverData[JARFILE], serverNum);
 
     runningServers.push_back(serverNum);
 }
@@ -399,9 +390,29 @@ void menuCreate()
         }
     }
 
+    cout << "Enter the maximum amount of RAM to allocate for the server [1G]: ";
+
+    string runRAM;
+    getline(cin, runRAM);
+
+    if (runRAM == "")
+    {
+        runRAM = "1G";
+    }
+
+    cout << "Enter the amount of RAM to start the server with [256M]: ";
+
+    string startRAM;
+    getline(cin, startRAM);
+
+    if (startRAM == "")
+    {
+        startRAM = "256M";
+    }
+
     writeLog("Adding server to the database");
 
-    addServerDB(serverNum, serverName, serverDir, serverJar);
+    addServerDB(serverNum, serverName, serverDir, serverJar, runRAM, startRAM);
 
     serverIDs.push_back(serverNum);
 
@@ -413,17 +424,10 @@ void menuCreate()
 
     if (startServer)
     {
-        vector<char*> serverArgs;
-        serverArgs.push_back((char*)"java");
-        serverArgs.push_back((char*)"-jar");
-        serverArgs.push_back((char*)serverPath.c_str());
-        serverArgs.push_back((char*)"nogui");
-        serverArgs.push_back((char*)nullptr);
-
-        writeLog("Creating server with ID: " + to_string(serverNum) + " in folder: " + serverDir + " with jar file: " + serverJar);
+        writeLog("Creating server with ID: " + to_string(serverNum) + " in folder: " + serverDir + " with jar file: " + serverJar + " with " + runRAM + " of RAM");
 
         // Create a new server child process
-        servers[serverNum] = new MCServer(serverArgs.data(), serverDir, serverNum);
+        servers[serverNum] = new MCServer(runRAM, startRAM, serverDir, serverJar, serverNum);
 
         runningServers.push_back(serverNum);
     }

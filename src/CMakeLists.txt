@@ -38,4 +38,4 @@ target_include_directories(Minecraft-Daemon PUBLIC
 )
 
 # Add compiler options
-target_compile_options(Minecraft-Daemon PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_options(Minecraft-Daemon PRIVATE -Wall -Wpedantic -Wextra)

@@ -24,6 +24,8 @@ static int queryServerDataCallback(void* _serverData, int numCols, char** rowDat
     serverData->operator[](NAME) = rowData[1];
     serverData->operator[](DIRECTORY) = rowData[2];
     serverData->operator[](JARFILE) = rowData[3];
+    serverData->operator[](RUN_MEMORY) = rowData[4];
+    serverData->operator[](START_MEMORY) = rowData[5];
 
     return 0 && numCols && azColName;
 }
@@ -52,7 +54,9 @@ int createDB(string dbFile)
         ID INT PRIMARY KEY     NOT NULL, \
         NAME           TEXT    NOT NULL, \
         DIRECTORY      TEXT    NOT NULL, \
-        JARFILE        TEXT    NOT NULL \
+        JARFILE        TEXT    NOT NULL, \
+        RUN_MEMORY    TEXT    NOT NULL, \
+        START_MEMORY   TEXT    NOT NULL \
         );";
 
     /* Execute SQL statement */
@@ -73,7 +77,7 @@ int createDB(string dbFile)
     return 0;
 }
 
-int addServerDB(int serverNum, string serverName, string serverDir, string serverJar)
+int addServerDB(int serverNum, string serverName, string serverDir, string serverJar, string runRAM, string startRAM)
 {
     sqlite3* db;
     int rc;
@@ -90,8 +94,8 @@ int addServerDB(int serverNum, string serverName, string serverDir, string serve
         writeLog("Opened database successfully");
     }
 
-    string sql = "INSERT INTO Servers (ID, NAME, DIRECTORY, JARFILE) "
-                 "VALUES (" + to_string(serverNum) + ", \"" + serverName + "\", \"" + serverDir + "\", \"" + serverJar + "\");";
+    string sql = "INSERT INTO Servers (ID, NAME, DIRECTORY, JARFILE, RUN_MEMORY, START_MEMORY) "
+                 "VALUES (" + to_string(serverNum) + ", \"" + serverName + "\", \"" + serverDir + "\", \"" + serverJar + "\", \"" + runRAM + "\", \"" + startRAM + "\");";
     char* zErrMsg = 0;
 
     rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);

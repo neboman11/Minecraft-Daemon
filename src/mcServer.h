@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <thread>
 #include <iostream>
+#include <vector>
 #include "loggingFunc.h"
 #include "helperFunc.h"
 #include "serverLog.h"
@@ -37,10 +38,12 @@ private:
 
     int spawnLogWatcher();
     int spawnChild(char* const* arguments, string workDir);
+    // Build the array of arguments that execv takes
+    static vector<char*> buildArgs(string runRAM, string startRAM, string serverPath);
 
 public:
     // Create a new serverLog with the given max size
-    MCServer(char* const* arguments, string workDir, int childNum);
+    MCServer(string runRAM, string startRAM, string workDir, string jarFile, int childNum);
 
     ~MCServer();
     // Get the log as a single string

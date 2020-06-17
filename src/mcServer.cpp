@@ -9,7 +9,7 @@
 
 #include "mcServer.h"
 
-MCServer::MCServer(char* const* arguments, string workDir, int childNum)
+MCServer::MCServer(string runRAM, string startRAM, string workDir, string jarFile, int childNum)
 {
     this->serverNum = childNum;
 
@@ -18,7 +18,7 @@ MCServer::MCServer(char* const* arguments, string workDir, int childNum)
 
     int status;
 
-    status = spawnChild(arguments, workDir);
+    status = spawnChild(MCServer::buildArgs(runRAM, startRAM, workDir + "/" + jarFile).data(), workDir);
 
     // If an error occurred during initialization
     if (status != 0)
@@ -272,4 +272,20 @@ void readServerLog(FILE* pipeFile, MCServer* server)
     fclose(pipeFile);
 
     //return 0;
+}
+
+vector<char*> MCServer::buildArgs(string runRAM, string startRAM, string serverPath)
+{
+    vector<char*> serverArgs;
+    serverArgs.push_back((char*)"java");
+    runRAM = "-Xmx" + runRAM;
+    serverArgs.push_back((char*)runRAM.c_str());
+    startRAM = "-Xms" + startRAM;
+    serverArgs.push_back((char*)startRAM.c_str());
+    serverArgs.push_back((char*)"-jar");
+    serverArgs.push_back((char*)serverPath.c_str());
+    serverArgs.push_back((char*)"nogui");
+    serverArgs.push_back((char*)nullptr);
+
+    return serverArgs;
 }
