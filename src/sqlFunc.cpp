@@ -9,17 +9,6 @@
 
 #include "sqlFunc.h"
 
-static int callback(void* NotUsed, int argc, char **argv, char **azColName)
-{
-   int i;
-   for(i = 0; i<argc; i++)
-   {
-      writeLog(string(azColName[i]) + " = " + (argv[i] ? argv[i] : "NULL"));
-   }
-   writeLog("\n", ((long long)NotUsed && false));
-   return 0;
-}
-
 static int loadIDsCallback(void* NotUsed, int numCols, char** rowData, char** azColName)
 {
    serverIDs.push_back(stoi(rowData[0]));
@@ -67,7 +56,7 @@ int createDB(string dbFile)
         );";
 
     /* Execute SQL statement */
-    rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+    rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);
     
     if( rc != SQLITE_OK )
     {
@@ -179,6 +168,39 @@ void queryServerData(int serverNum, map<int, string>& serverData)
     char* zErrMsg = 0;
 
     rc = sqlite3_exec(db, sql.c_str(), queryServerDataCallback, (void*)&serverData, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+        writeLog("Error querying database: " + string(zErrMsg));
+        sqlite3_free(zErrMsg);
+    } 
+    else
+    {
+        writeLog("Records loaded successfully!");
+    }
+
+    sqlite3_close(db);
+}
+
+void removeServerDB(int serverNum)
+{
+    sqlite3* db;
+    int rc;
+
+    rc = sqlite3_open(configOptions[DATABASE_FILE].c_str(), &db);
+
+    if( rc )
+    {
+        writeLog(string("Can't open database: ") + sqlite3_errmsg(db));
+    }
+    else
+    {
+        writeLog("Opened database successfully");
+    }
+
+    string sql = "DELETE from Servers where ID = " + to_string(serverNum) + ";";
+    char* zErrMsg = 0;
+
+    rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);
     if (rc != SQLITE_OK)
     {
         writeLog("Error querying database: " + string(zErrMsg));

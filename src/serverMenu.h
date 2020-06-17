@@ -37,6 +37,7 @@ int getNumberFromUser();
 void menuCreate();
 void menuList();
 void menuListStopped();
+void menuRemove();
 int getValidRunningServer();
 int getValidStoppedServer();
 bool getYesOrNo();

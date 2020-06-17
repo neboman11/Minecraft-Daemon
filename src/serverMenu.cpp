@@ -22,11 +22,12 @@ int serverMenu()
         cout << "[c] Create a new server" << endl;
         cout << "[s] Start an existing server" << endl;
         cout << "[l] List all servers" << endl;
-        cout << "[r] List all running servers" << endl;
-        cout << "[m] List all stopped servers" << endl;
+        cout << "[m] List all running servers" << endl;
+        cout << "[n] List all stopped servers" << endl;
         cout << "[o] View a server's output" << endl;
         cout << "[i] Interact with a running server" << endl;
         cout << "[k] Stop a running server" << endl;
+        cout << "[r] Remove a server" << endl;
         cout << "[0] Quit the daemon" << endl;
 
         getline(cin, input);
@@ -65,7 +66,7 @@ int serverMenu()
                 cout << "No servers have been created. Create a server first." << endl;
             }
             break;
-        case 'r':
+        case 'm':
             if (runningServers.size() > 0)
             {
                 menuListRunning();
@@ -76,7 +77,7 @@ int serverMenu()
                 cout << "There are currently no running servers." << endl;
             }
             break;
-        case 'm':
+        case 'n':
             if (serverIDs.size() > 0 && serverIDs.size() > runningServers.size())
             {
                 menuListStopped();
@@ -123,6 +124,17 @@ int serverMenu()
             else
             {
                 cout << "There are currently no running servers." << endl;
+            }
+            break;
+        case 'r':
+            if (serverIDs.size() > 0)
+            {
+                menuRemove();
+            }
+
+            else
+            {
+                cout << "No servers have been created. Create a server first." << endl;
             }
             break;
         case '0':
@@ -448,6 +460,82 @@ void menuListStopped()
     }
 }
 
+void menuRemove()
+{
+    cout << "Enter the server number to remove: ";
+
+    int serverNum = getNumberFromUser();
+
+    bool validID = false;
+
+    for (auto i : serverIDs)
+    {
+        if (i == serverNum)
+        {
+            validID = true;
+        }
+    }
+
+    while (!validID)
+    {
+        cout << "That ID does not exist, please enter a different one: ";
+
+        serverNum = getNumberFromUser();
+
+        validID = false;
+
+        for (auto i : serverIDs)
+        {
+            if (i == serverNum)
+            {
+                validID = true;
+            }
+        }
+    }
+
+    bool runningID = false;
+    for (auto i : runningServers)
+    {
+        if (i == serverNum)
+        {
+            runningID = true;
+        }
+    }
+
+    if (runningID)
+    {
+        cout << "WARNING: Server is currently running!!" << endl;
+        cout << "It will be stopped before it is removed." << endl;
+    }
+
+    cout << "Are you sure you want to remove this server? (y/n): ";
+
+    bool choice = getYesOrNo();
+
+    if (choice)
+    {
+        if (runningID)
+        {
+            menuStop(serverNum);
+        }
+
+        removeServerDB(serverNum);
+
+        auto iter = serverIDs.begin();
+
+        for (unsigned long i = 0; i < serverIDs.size(); i++)
+        {
+            if (serverIDs.at(i) == serverNum)
+            {
+                serverIDs.erase(iter);
+            }
+
+            iter++;
+        }
+    }
+}
+
+// TODO: return on stopped server number
 int getValidRunningServer()
 {
     int serverNum = getNumberFromUser();
