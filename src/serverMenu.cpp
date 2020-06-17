@@ -39,14 +39,19 @@ int serverMenu()
             menuCreate();
             break;
         case 's':
-            if (serverIDs.size() > 0)
+            if (serverIDs.size() > 0 && serverIDs.size() > runningServers.size())
             {
                 menuStart();
             }
 
-            else
+            else if (serverIDs.size() == 0)
             {
                 cout << "No servers have been created. Create a server first." << endl;
+            }
+
+            else
+            {
+                cout << "All available servers are currently running." << endl;
             }
             break;
         case 'l':
@@ -72,14 +77,19 @@ int serverMenu()
             }
             break;
         case 'm':
-            if (serverIDs.size() == runningServers.size())
+            if (serverIDs.size() > 0 && serverIDs.size() > runningServers.size())
             {
                 menuListStopped();
             }
 
+            else if (serverIDs.size() == 0)
+            {
+                cout << "No servers have been created. Create a server first." << endl;
+            }
+
             else
             {
-                cout << "All available servers are running." << endl;
+                cout << "All available servers are currently running." << endl;
             }
             break;
         case 'o':
@@ -203,7 +213,12 @@ int menuStop(int serverNum)
         serverNum = getValidRunningServer();
     }
 
-    writeLog("Shutting down server: " + to_string(serverNum));
+    map<int, string> serverData;
+
+    // Query server data from database
+    queryServerData(serverNum, serverData);
+
+    writeLog("Shutting down server: " + serverData[NAME]);
 
     servers[serverNum]->stop();
 
