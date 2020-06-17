@@ -37,5 +37,12 @@ target_include_directories(Minecraft-Daemon PUBLIC
                            "${PROJECT_BINARY_DIR}/src"
 )
 
-# Add compiler options
-target_compile_options(Minecraft-Daemon PRIVATE -Wall -Wpedantic -Wextra)
+if (UNIX)
+    # Add compiler options
+    target_compile_options(Minecraft-Daemon PRIVATE -Wall -Wpedantic -Wextra)
+endif (UNIX)
+
+elif (WIN32)
+    # Add compiler options
+    target_compile_options(Minecraft-Daemon PRIVATE -Wall -Wextra)
+endif (WIN32)
