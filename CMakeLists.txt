@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name and version
-project(Minecraft-Daemon VERSION 0.2)
+project(Minecraft-Daemon VERSION 0.3)
 
 # Specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
