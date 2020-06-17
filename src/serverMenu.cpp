@@ -74,7 +74,7 @@ int serverMenu()
         case 'm':
             if (serverIDs.size() == runningServers.size())
             {
-                menuStart();
+                menuListStopped();
             }
 
             else
