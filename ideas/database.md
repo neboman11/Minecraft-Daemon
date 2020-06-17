@@ -17,5 +17,5 @@ The daemon should interface with a database to store information about servers (
 ## Goals
 
 ~~- Removal of a server~~
-- Store memory settings for the servers
+~~- Store memory settings for the servers~~
 - Store custom java settings for the servers

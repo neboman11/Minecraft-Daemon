@@ -212,7 +212,7 @@ void removeServerDB(int serverNum)
     } 
     else
     {
-        writeLog("Records loaded successfully!");
+        writeLog("Records removed successfully!");
     }
 
     sqlite3_close(db);
