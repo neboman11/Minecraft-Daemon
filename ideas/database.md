@@ -1,6 +1,8 @@
 # Database
 
-## Status - In Progress
+## Status - Implemented
+
+Currently only sqlite3 is supported as a backend.
 
 ## Description
 
