@@ -7,6 +7,14 @@
 
 ## Building
 
+### Prerequisites
+
+```
+tclap
+rudeconfig
+sqlite3
+```
+
 To build, run:
 
 ```sh
