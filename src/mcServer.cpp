@@ -282,7 +282,12 @@ vector<char*> MCServer::buildArgs(string runRAM, string startRAM, string javaArg
     serverArgs.push_back((char*)runRAM.c_str());
     startRAM = "-Xms" + startRAM;
     serverArgs.push_back((char*)startRAM.c_str());
-    serverArgs.push_back((char*)javaArgs.c_str());
+
+    if (javaArgs != "")
+    {
+        serverArgs.push_back((char*)javaArgs.c_str());
+    }
+
     serverArgs.push_back((char*)"-jar");
     serverArgs.push_back((char*)serverPath.c_str());
     serverArgs.push_back((char*)"nogui");

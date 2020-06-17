@@ -26,7 +26,15 @@ static int queryServerDataCallback(void* _serverData, int numCols, char** rowDat
     serverData->operator[](JARFILE) = rowData[3];
     serverData->operator[](RUN_MEMORY) = rowData[4];
     serverData->operator[](START_MEMORY) = rowData[5];
-    serverData->operator[](JAVA_ARGS) = rowData[6];
+
+    if (rowData[6] == nullptr)
+    {
+        serverData->operator[](JAVA_ARGS) = "";
+    }
+    else
+    {
+        serverData->operator[](JAVA_ARGS) = rowData[6];
+    }
 
     return 0;
 }
