@@ -37,9 +37,9 @@ private:
     ostream* activeOutput = nullptr;
 
     int spawnLogWatcher();
-    int spawnChild(char* const* arguments, string workDir);
+    int spawnChild(vector<string> arguments, string workDir);
     // Build the array of arguments that execv takes
-    static vector<char*> buildArgs(string runRAM, string startRAM, string javaArgs, string serverPath);
+    static vector<string> buildArgs(string runRAM, string startRAM, string javaArgs, string serverPath);
 
 public:
     // Create a new serverLog with the given max size

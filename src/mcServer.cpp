@@ -18,7 +18,7 @@ MCServer::MCServer(string runRAM, string startRAM, string javaArgs, string workD
 
     int status;
 
-    status = spawnChild(MCServer::buildArgs(runRAM, startRAM, javaArgs, workDir + "/" + jarFile).data(), workDir);
+    status = spawnChild(MCServer::buildArgs(runRAM, startRAM, javaArgs, workDir + "/" + jarFile), workDir);
 
     // If an error occurred during initialization
     if (status != 0)
@@ -63,7 +63,7 @@ int MCServer::spawnLogWatcher()
     return 0;
 }
 
-int MCServer::spawnChild(char* const* arguments, string workDir)
+int MCServer::spawnChild(vector<string> arguments, string workDir)
 {
     // PID type for storing the process's PID
     pid_t mypid;
@@ -165,7 +165,13 @@ int MCServer::spawnChild(char* const* arguments, string workDir)
             exit(EXIT_FAILURE);
         }
 
-        status = execv(configOptions[JAVA_PATH].c_str(), arguments);
+        const char **argv = new const char* [arguments.size() + 1];   // extra room for sentinel
+        for (unsigned long j = 0;  j < arguments.size() + 1;  ++j)     // copy args
+                argv [j] = arguments[j] .c_str();
+
+        argv [arguments.size() + 1] = NULL;  // end of arguments sentinel is NULL
+
+        status = execv(configOptions[JAVA_PATH].c_str(), (char**)argv);
 
         if (status < 0)
         {
@@ -274,24 +280,29 @@ void readServerLog(FILE* pipeFile, MCServer* server)
     //return 0;
 }
 
-vector<char*> MCServer::buildArgs(string runRAM, string startRAM, string javaArgs, string serverPath)
+vector<string> MCServer::buildArgs(string runRAM, string startRAM, string javaArgs, string serverPath)
 {
-    vector<char*> serverArgs;
-    serverArgs.push_back((char*)"java");
-    runRAM = "-Xmx" + runRAM;
-    serverArgs.push_back((char*)runRAM.c_str());
-    startRAM = "-Xms" + startRAM;
-    serverArgs.push_back((char*)startRAM.c_str());
+    vector<string> serverArgs;
+    serverArgs.push_back("java");
+    serverArgs.push_back("-Xmx" + runRAM);
+    serverArgs.push_back("-Xms" + startRAM);
 
-    if (javaArgs != "")
+    if (javaArgs.length() > 0)
     {
-        serverArgs.push_back((char*)javaArgs.c_str());
+        string delimiter = " ";
+        size_t pos = 0;
+        string token;
+        while ((pos = javaArgs.find(delimiter)) != string::npos)
+        {
+            token = javaArgs.substr(0, pos);
+            serverArgs.push_back(token);
+            javaArgs.erase(0, pos + delimiter.length());
+        }
     }
 
-    serverArgs.push_back((char*)"-jar");
-    serverArgs.push_back((char*)serverPath.c_str());
-    serverArgs.push_back((char*)"nogui");
-    serverArgs.push_back((char*)nullptr);
+    serverArgs.push_back("-jar");
+    serverArgs.push_back(serverPath);
+    serverArgs.push_back("nogui");
 
     return serverArgs;
 }
