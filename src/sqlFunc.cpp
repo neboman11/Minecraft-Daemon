@@ -227,3 +227,5 @@ void removeServerDB(int serverNum)
 
     sqlite3_close(db);
 }
+
+// TODO: add function that changes the info for a server in the database

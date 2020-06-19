@@ -180,7 +180,6 @@ void menuStart()
 
 void menuListRunning()
 {
-    // TODO: query data from database
     cout << "These are all the currently running servers:" << endl;
 
     for (auto i : runningServers)
@@ -441,7 +440,6 @@ void menuList()
 
 void menuListStopped()
 {
-    // TODO: query data from database
     cout << "These are all the current stopped servers:" << endl;
 
     for (auto i : serverIDs)

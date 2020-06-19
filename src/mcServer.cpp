@@ -43,7 +43,6 @@ MCServer::MCServer(string runRAM, string startRAM, string javaArgs, string workD
 
 MCServer::~MCServer()
 {
-    // TODO free used memory
     delete log;
 
     for (int i = 0; i < 2; i++)
