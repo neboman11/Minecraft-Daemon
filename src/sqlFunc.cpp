@@ -101,7 +101,7 @@ int addServerDB(int serverNum, string serverName, string serverDir, string serve
     }
     else
     {
-        writeLog("Opened database successfully");
+        writeLog("Opened database successfully", true);
     }
 
     string sql = "INSERT INTO Servers (ID, NAME, DIRECTORY, JARFILE, RUN_MEMORY, START_MEMORY, JAVA_ARGS) "
@@ -139,7 +139,7 @@ int loadIDs()
     }
     else
     {
-        writeLog("Opened database successfully");
+        writeLog("Opened database successfully", true);
     }
 
     string sql = "SELECT * FROM Servers;";
@@ -154,7 +154,7 @@ int loadIDs()
     } 
     else
     {
-        writeLog("Records loaded successfully!");
+        writeLog("Records loaded successfully!", true);
     }
 
     sqlite3_close(db);
@@ -175,7 +175,7 @@ void queryServerData(int serverNum, map<int, string>& serverData)
     }
     else
     {
-        writeLog("Opened database successfully");
+        writeLog("Opened database successfully", true);
     }
 
     string sql = "SELECT * FROM Servers WHERE ID = " + to_string(serverNum) + ";";
@@ -189,7 +189,7 @@ void queryServerData(int serverNum, map<int, string>& serverData)
     } 
     else
     {
-        writeLog("Records loaded successfully!");
+        writeLog("Records loaded successfully!", true);
     }
 
     sqlite3_close(db);
@@ -208,7 +208,7 @@ void removeServerDB(int serverNum)
     }
     else
     {
-        writeLog("Opened database successfully");
+        writeLog("Opened database successfully", true);
     }
 
     string sql = "DELETE from Servers where ID = " + to_string(serverNum) + ";";

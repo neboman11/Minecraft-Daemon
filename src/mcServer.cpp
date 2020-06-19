@@ -75,7 +75,6 @@ int MCServer::spawnChild(vector<string> arguments, string workDir)
     // Status for keeping track of errors
     int status;
 
-    writeLog("Opening pipe for stdin", true);
     // Open the write pipe
     status = pipe(wpipefd);
 
@@ -86,7 +85,6 @@ int MCServer::spawnChild(vector<string> arguments, string workDir)
             return 20;
     }
 
-    writeLog("Opening pipe for stdout", true);
     // Open the read pipe
     status = pipe(rpipefd);
 
@@ -109,10 +107,6 @@ int MCServer::spawnChild(vector<string> arguments, string workDir)
     serverPipe[0][1] = wpipefd[1];
     serverPipe[1][0] = rpipefd[0];
     serverPipe[1][1] = rpipefd[1];
-
-    writeLog("Added pipes to global vector", true);
-    // Add 2D array to global array of server pipes
-    //serverPipes[childNum] = serverPipe;
 
     writeLog("Forking", true);
     // Fork the process and store the return value
@@ -168,7 +162,9 @@ int MCServer::spawnChild(vector<string> arguments, string workDir)
 
         const char **argv = new const char* [arguments.size() + 1];   // extra room for sentinel
         for (unsigned long j = 0;  j < arguments.size() + 1;  ++j)     // copy args
-                argv [j] = arguments[j] .c_str();
+        {
+            argv [j] = arguments[j].c_str();
+        }
 
         argv [arguments.size() + 1] = NULL;  // end of arguments sentinel is NULL
 
