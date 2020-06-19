@@ -20,6 +20,7 @@ void menuList();
 void menuListStopped();
 void menuRemove();
 void menuUpdate();
+void menuPrint();
 
 // TODO: Need a way to validate run memory and start memory input since they are in a "human readable" format
 
@@ -41,6 +42,7 @@ int serverMenu()
         cout << "[o] View a server's output" << endl;
         cout << "[i] Interact with a running server" << endl;
         cout << "[u] Change a server's settings" << endl;
+        cout << "[p] Print a server's current settings" << endl;
         cout << "[k] Stop a running server" << endl;
         cout << "[r] Remove a server" << endl;
         cout << "[0] Quit the daemon" << endl;
@@ -141,6 +143,17 @@ int serverMenu()
                 cout << "No servers have been created. Create a server first." << endl;
             }
             break;
+        case 'p':
+            if (serverIDs.size() > 0)
+            {
+                menuPrint();
+            }
+
+            else
+            {
+                cout << "No servers have been created. Create a server first." << endl;
+            }
+            break;
         case 'k':
             if (runningServers.size() > 0)
             {
@@ -181,7 +194,7 @@ void menuStart(int serverNum)
     {
         cout << "Enter the server number to start: ";
 
-        int serverNum = getValidStoppedServer();
+        serverNum = getValidStoppedServer();
 
         if (serverNum == -1)
         {
@@ -626,6 +639,25 @@ void menuUpdate()
     }
 
     
+}
+
+void menuPrint()
+{
+    cout << "Enter the server number to print the settings for: ";
+
+    int serverNum = getValidServer();
+
+    map<int, string> serverData;
+
+    // Query server data from database
+    queryServerData(serverNum, serverData);
+
+    cout << "Name: " << serverData[NAME] << endl;
+    cout << "Directory: " << serverData[DIRECTORY] << endl;
+    cout << "Jar File: " << serverData[JARFILE] << endl;
+    cout << "Run Memory: " << serverData[RUN_MEMORY] << endl;
+    cout << "Start Memory: " << serverData[START_MEMORY] << endl;
+    cout << "Java Args: " << serverData[JAVA_ARGS] << endl;
 }
 
 int getNumberFromUser()
