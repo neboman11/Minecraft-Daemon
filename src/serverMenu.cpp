@@ -583,37 +583,37 @@ void menuUpdate()
         cout << "Enter the new name for the server: ";
         getline(cin, input);
 
-        updateServerNameDB(serverNum, input);
+        updateServerFieldDB(serverNum, "NAME", input);
         break;
     case 'f':
         cout << "Enter the new folder for the server: ";
         getline(cin, input);
 
-        updateServerFolderDB(serverNum, input);
+        updateServerFieldDB(serverNum, "DIRECTORY", input);
         break;
     case 'j':
         cout << "Enter the new jar file for the server: ";
         getline(cin, input);
 
-        updateServerJarDB(serverNum, input);
+        updateServerFieldDB(serverNum, "JARFILE", input);
         break;
     case 'r':
         cout << "Enter the new run memory for the server: ";
         getline(cin, input);
 
-        updateServerRunMemoryDB(serverNum, input);
+        updateServerFieldDB(serverNum, "RUN_MEMORY", input);
         break;
     case 's':
         cout << "Enter the new start memory for the server: ";
         getline(cin, input);
 
-        updateServerStartMemoryDB(serverNum, input);
+        updateServerFieldDB(serverNum, "START_MEMORY", input);
         break;
     case 'a':
         cout << "Enter the new java args for the server: ";
         getline(cin, input);
 
-        updateServerJavaArgsDB(serverNum, input);
+        updateServerFieldDB(serverNum, "JAVA_ARGS", input);
         break;
     default:
         cout << "Invalid input, returning to main menu." << endl;
