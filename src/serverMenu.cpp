@@ -186,6 +186,11 @@ int menuLog()
 
     int serverNum = getValidRunningServer();
 
+    if (serverNum == -1)
+    {
+        return 0;
+    }
+
     cout << servers[serverNum]->getLog() << endl;
 
     return 0;
@@ -196,6 +201,11 @@ int menuInteract()
     cout << "Enter the server number to interact with: ";
 
     int serverNum = getValidRunningServer();
+
+    if (serverNum == -1)
+    {
+        return 0;
+    }
 
     int status = servers[serverNum]->interact(&cout);
 
@@ -214,6 +224,11 @@ int menuStop(int serverNum)
         cout << "Enter the server number to stop: ";
 
         serverNum = getValidRunningServer();
+
+        if (serverNum == -1)
+        {
+            return 0;
+        }
     }
 
     map<int, string> serverData;
@@ -519,8 +534,8 @@ void menuRemove()
 
     if (runningID)
     {
-        cout << "WARNING: Server is currently running!!" << endl;
-        cout << "It will be stopped before it is removed." << endl;
+        cout << endl << "WARNING: Server is currently running!!" << endl;
+        cout << "It will be stopped before it is removed." << endl << endl;
     }
 
     cout << "Are you sure you want to remove this server? (y/n): ";
@@ -565,6 +580,18 @@ int getValidRunningServer()
         }
     }
 
+    if (!validID)
+    {
+        for (auto i : serverIDs)
+        {
+            if (i == serverNum)
+            {
+                cout << "That server is currently stopped." << endl;
+                return -1;
+            }
+        }
+    }
+
     while (!validID)
     {
         cout << "That ID does not exist, please enter a different one: ";
@@ -578,6 +605,18 @@ int getValidRunningServer()
             if (i == serverNum)
             {
                 validID = true;
+            }
+        }
+
+        if (!validID)
+        {
+            for (auto i : serverIDs)
+            {
+                if (i == serverNum)
+                {
+                    cout << "That server is currently stopped." << endl;
+                    return -1;
+                }
             }
         }
     }
