@@ -28,16 +28,7 @@ extern vector<int> serverIDs;
 extern vector<int> runningServers;
 
 int serverMenu();
-void menuStart();
-void menuListRunning();
-int menuLog();
-int menuInteract();
-int menuStop(int serverID);
 int getNumberFromUser();
-void menuCreate();
-void menuList();
-void menuListStopped();
-void menuRemove();
 int getValidRunningServer();
 int getValidStoppedServer();
 bool getYesOrNo();

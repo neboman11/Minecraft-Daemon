@@ -9,6 +9,17 @@
 
 #include "serverMenu.h"
 
+// Function prototypes
+void menuStart();
+void menuListRunning();
+int menuLog();
+int menuInteract();
+int menuStop(int serverID);
+void menuCreate();
+void menuList();
+void menuListStopped();
+void menuRemove();
+
 int serverMenu()
 {
     char choice;
@@ -255,43 +266,6 @@ int menuStop(int serverNum)
     }
 
     return 0;
-}
-
-int getNumberFromUser()
-{
-    int serverNum;
-    bool validNum = true;
-    string input;
-
-    getline(cin, input);
-
-    try
-    {
-        serverNum = stoi(input);
-    }
-    catch(const invalid_argument& e)
-    {
-        validNum = false;
-    }
-
-    while (!validNum)
-    {
-        cout << "Invalid input, please enter a number: ";
-        getline(cin, input);
-
-        validNum = true;
-
-        try
-        {
-            serverNum = stoi(input);
-        }
-        catch(const invalid_argument& e)
-        {
-            validNum = false;
-        }
-    }
-
-    return serverNum;
 }
 
 void menuCreate()
@@ -565,7 +539,43 @@ void menuRemove()
     }
 }
 
-// TODO: return on stopped server number
+int getNumberFromUser()
+{
+    int serverNum;
+    bool validNum = true;
+    string input;
+
+    getline(cin, input);
+
+    try
+    {
+        serverNum = stoi(input);
+    }
+    catch(const invalid_argument& e)
+    {
+        validNum = false;
+    }
+
+    while (!validNum)
+    {
+        cout << "Invalid input, please enter a number: ";
+        getline(cin, input);
+
+        validNum = true;
+
+        try
+        {
+            serverNum = stoi(input);
+        }
+        catch(const invalid_argument& e)
+        {
+            validNum = false;
+        }
+    }
+
+    return serverNum;
+}
+
 int getValidRunningServer()
 {
     int serverNum = getNumberFromUser();

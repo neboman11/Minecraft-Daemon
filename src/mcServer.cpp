@@ -9,6 +9,8 @@
 
 #include "mcServer.h"
 
+void readServerLog(FILE* pipeFile, MCServer* server);
+
 MCServer::MCServer(string runRAM, string startRAM, string javaArgs, string workDir, string jarFile, int childNum)
 {
     this->serverNum = childNum;

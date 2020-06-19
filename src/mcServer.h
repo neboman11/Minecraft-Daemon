@@ -59,6 +59,4 @@ public:
     int interact(ostream* outputStream);
 };
 
-void readServerLog(FILE* pipeFile, MCServer* server);
-
 #endif // __MCSERVER_H_
