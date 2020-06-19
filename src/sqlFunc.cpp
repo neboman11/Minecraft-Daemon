@@ -189,7 +189,7 @@ void queryServerData(int serverNum, map<int, string>& serverData)
     } 
     else
     {
-        writeLog("Records loaded successfully!", true);
+        writeLog("Record loaded successfully!", true);
     }
 
     sqlite3_close(db);
@@ -211,7 +211,7 @@ void removeServerDB(int serverNum)
         writeLog("Opened database successfully", true);
     }
 
-    string sql = "DELETE from Servers where ID = " + to_string(serverNum) + ";";
+    string sql = "DELETE FROM Servers WHERE ID = " + to_string(serverNum) + ";";
     char* zErrMsg = 0;
 
     rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);
@@ -222,10 +222,206 @@ void removeServerDB(int serverNum)
     } 
     else
     {
-        writeLog("Records removed successfully!");
+        writeLog("Record removed successfully!");
     }
 
     sqlite3_close(db);
 }
 
-// TODO: add function that changes the info for a server in the database
+void updateServerNameDB(int serverNum, string serverName)
+{
+    sqlite3* db;
+    int rc;
+
+    rc = sqlite3_open(configOptions[DATABASE_FILE].c_str(), &db);
+
+    if( rc )
+    {
+        writeLog(string("Can't open database: ") + sqlite3_errmsg(db));
+    }
+    else
+    {
+        writeLog("Opened database successfully", true);
+    }
+
+    string sql = "UPDATE Servers SET NAME = \"" + serverName + "\" WHERE ID = " + to_string(serverNum) + ";";
+    char* zErrMsg = 0;
+
+    rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+        writeLog("Error querying database: " + string(zErrMsg));
+        sqlite3_free(zErrMsg);
+    } 
+    else
+    {
+        writeLog("Record updated successfully!");
+    }
+
+    sqlite3_close(db);
+}
+
+void updateServerFolderDB(int serverNum, string serverDir)
+{
+    sqlite3* db;
+    int rc;
+
+    rc = sqlite3_open(configOptions[DATABASE_FILE].c_str(), &db);
+
+    if( rc )
+    {
+        writeLog(string("Can't open database: ") + sqlite3_errmsg(db));
+    }
+    else
+    {
+        writeLog("Opened database successfully", true);
+    }
+
+    string sql = "UPDATE Servers SET DIRECTORY = \"" + serverDir + "\" WHERE ID = " + to_string(serverNum) + ";";
+    char* zErrMsg = 0;
+
+    rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+        writeLog("Error querying database: " + string(zErrMsg));
+        sqlite3_free(zErrMsg);
+    } 
+    else
+    {
+        writeLog("Record updated successfully!");
+    }
+
+    sqlite3_close(db);
+}
+
+void updateServerJarDB(int serverNum, string serverJar)
+{
+    sqlite3* db;
+    int rc;
+
+    rc = sqlite3_open(configOptions[DATABASE_FILE].c_str(), &db);
+
+    if( rc )
+    {
+        writeLog(string("Can't open database: ") + sqlite3_errmsg(db));
+    }
+    else
+    {
+        writeLog("Opened database successfully", true);
+    }
+
+    string sql = "UPDATE Servers SET JARFILE = \"" + serverJar + "\" WHERE ID = " + to_string(serverNum) + ";";
+    char* zErrMsg = 0;
+
+    rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+        writeLog("Error querying database: " + string(zErrMsg));
+        sqlite3_free(zErrMsg);
+    } 
+    else
+    {
+        writeLog("Record updated successfully!");
+    }
+
+    sqlite3_close(db);
+}
+
+void updateServerRunMemoryDB(int serverNum, string runMemory)
+{
+    sqlite3* db;
+    int rc;
+
+    rc = sqlite3_open(configOptions[DATABASE_FILE].c_str(), &db);
+
+    if( rc )
+    {
+        writeLog(string("Can't open database: ") + sqlite3_errmsg(db));
+    }
+    else
+    {
+        writeLog("Opened database successfully", true);
+    }
+
+    string sql = "UPDATE Servers SET RUN_MEMORY = \"" + runMemory + "\" WHERE ID = " + to_string(serverNum) + ";";
+    char* zErrMsg = 0;
+
+    rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+        writeLog("Error querying database: " + string(zErrMsg));
+        sqlite3_free(zErrMsg);
+    } 
+    else
+    {
+        writeLog("Record updated successfully!");
+    }
+
+    sqlite3_close(db);
+}
+
+void updateServerStartMemoryDB(int serverNum, string startMemory)
+{
+    sqlite3* db;
+    int rc;
+
+    rc = sqlite3_open(configOptions[DATABASE_FILE].c_str(), &db);
+
+    if( rc )
+    {
+        writeLog(string("Can't open database: ") + sqlite3_errmsg(db));
+    }
+    else
+    {
+        writeLog("Opened database successfully", true);
+    }
+
+    string sql = "UPDATE Servers SET START_MEMORY = \"" + startMemory + "\" WHERE ID = " + to_string(serverNum) + ";";
+    char* zErrMsg = 0;
+
+    rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+        writeLog("Error querying database: " + string(zErrMsg));
+        sqlite3_free(zErrMsg);
+    } 
+    else
+    {
+        writeLog("Record updated successfully!");
+    }
+
+    sqlite3_close(db);
+}
+
+void updateServerJavaArgsDB(int serverNum, string javaArgs)
+{
+    sqlite3* db;
+    int rc;
+
+    rc = sqlite3_open(configOptions[DATABASE_FILE].c_str(), &db);
+
+    if( rc )
+    {
+        writeLog(string("Can't open database: ") + sqlite3_errmsg(db));
+    }
+    else
+    {
+        writeLog("Opened database successfully", true);
+    }
+
+    string sql = "UPDATE Servers SET JAVA_ARGS = \"" + javaArgs + "\" WHERE ID = " + to_string(serverNum) + ";";
+    char* zErrMsg = 0;
+
+    rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+        writeLog("Error querying database: " + string(zErrMsg));
+        sqlite3_free(zErrMsg);
+    } 
+    else
+    {
+        writeLog("Record updated successfully!");
+    }
+
+    sqlite3_close(db);
+}

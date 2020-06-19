@@ -10,7 +10,7 @@
 #include "serverMenu.h"
 
 // Function prototypes
-void menuStart();
+void menuStart(int serverNum);
 void menuListRunning();
 int menuLog();
 int menuInteract();
@@ -19,6 +19,9 @@ void menuCreate();
 void menuList();
 void menuListStopped();
 void menuRemove();
+void menuUpdate();
+
+// TODO: Need a way to validate run memory and start memory input since they are in a "human readable" format
 
 int serverMenu()
 {
@@ -37,6 +40,7 @@ int serverMenu()
         cout << "[n] List all stopped servers" << endl;
         cout << "[o] View a server's output" << endl;
         cout << "[i] Interact with a running server" << endl;
+        cout << "[u] Change a server's settings" << endl;
         cout << "[k] Stop a running server" << endl;
         cout << "[r] Remove a server" << endl;
         cout << "[0] Quit the daemon" << endl;
@@ -53,7 +57,7 @@ int serverMenu()
         case 's':
             if (serverIDs.size() > 0 && serverIDs.size() > runningServers.size())
             {
-                menuStart();
+                menuStart(-1);
             }
 
             else if (serverIDs.size() == 0)
@@ -126,6 +130,17 @@ int serverMenu()
                 cout << "There are currently no running servers." << endl;
             }
             break;
+        case 'u':
+            if (serverIDs.size() > 0)
+            {
+                menuUpdate();
+            }
+
+            else
+            {
+                cout << "No servers have been created. Create a server first." << endl;
+            }
+            break;
         case 'k':
             if (runningServers.size() > 0)
             {
@@ -160,11 +175,19 @@ int serverMenu()
     return 0;
 }
 
-void menuStart()
+void menuStart(int serverNum)
 {
-    cout << "Enter the server number to start: ";
+    if (serverNum == -1)
+    {
+        cout << "Enter the server number to start: ";
 
-    int serverNum = getValidStoppedServer();
+        int serverNum = getValidStoppedServer();
+
+        if (serverNum == -1)
+        {
+            return;
+        }
+    }
 
     map<int, string> serverData;
 
@@ -466,34 +489,7 @@ void menuRemove()
 {
     cout << "Enter the server number to remove: ";
 
-    int serverNum = getNumberFromUser();
-
-    bool validID = false;
-
-    for (auto i : serverIDs)
-    {
-        if (i == serverNum)
-        {
-            validID = true;
-        }
-    }
-
-    while (!validID)
-    {
-        cout << "That ID does not exist, please enter a different one: ";
-
-        serverNum = getNumberFromUser();
-
-        validID = false;
-
-        for (auto i : serverIDs)
-        {
-            if (i == serverNum)
-            {
-                validID = true;
-            }
-        }
-    }
+    int serverNum = getValidServer();
 
     bool runningID = false;
     for (auto i : runningServers)
@@ -537,6 +533,101 @@ void menuRemove()
     }
 }
 
+void menuUpdate()
+{
+    cout << "Enter the server number to update: ";
+
+    int serverNum = getValidServer();
+
+    bool runningID = false;
+    for (auto i : runningServers)
+    {
+        if (i == serverNum)
+        {
+            runningID = true;
+        }
+    }
+
+    char choice;
+    string input;
+
+    // Determine which setting to update
+    cout << "Which setting would you like to change?" << endl;
+    cout << "[n] Server name" << endl;
+    cout << "[f] Server folder" << endl;
+    cout << "[j] Server jar file" << endl;
+    cout << "[r] Server run memory" << endl;
+    cout << "[s] Server start memory" << endl;
+    cout << "[a] Server java args" << endl;
+
+    getline(cin, input);
+
+    choice = input[0];
+
+    switch (choice)
+    {
+    case 'n':
+        cout << "Enter the new name for the server: ";
+        getline(cin, input);
+
+        updateServerNameDB(serverNum, input);
+        break;
+    case 'f':
+        cout << "Enter the new folder for the server: ";
+        getline(cin, input);
+
+        updateServerFolderDB(serverNum, input);
+        break;
+    case 'j':
+        cout << "Enter the new jar file for the server: ";
+        getline(cin, input);
+
+        updateServerJarDB(serverNum, input);
+        break;
+    case 'r':
+        cout << "Enter the new run memory for the server: ";
+        getline(cin, input);
+
+        updateServerRunMemoryDB(serverNum, input);
+        break;
+    case 's':
+        cout << "Enter the new start memory for the server: ";
+        getline(cin, input);
+
+        updateServerStartMemoryDB(serverNum, input);
+        break;
+    case 'a':
+        cout << "Enter the new java args for the server: ";
+        getline(cin, input);
+
+        updateServerJavaArgsDB(serverNum, input);
+        break;
+    default:
+        cout << "Invalid input, returning to main menu." << endl;
+        break;
+    }
+
+    if (runningID)
+    {
+        cout << endl << "WARNING: Server is currently running!!" << endl;
+        cout << "Would you like to restart the server with the new settings? (y/n): ";
+
+        bool choice = getYesOrNo();
+
+        if (choice)
+        {
+            if (runningID)
+            {
+                menuStop(serverNum);
+            }
+
+            menuStart(serverNum);
+        }
+    }
+
+    
+}
+
 int getNumberFromUser()
 {
     int serverNum;
@@ -568,6 +659,39 @@ int getNumberFromUser()
         catch(const invalid_argument& e)
         {
             validNum = false;
+        }
+    }
+
+    return serverNum;
+}
+
+int getValidServer()
+{
+    int serverNum = getNumberFromUser();
+    bool validID = false;
+
+    for (auto i : serverIDs)
+    {
+        if (i == serverNum)
+        {
+            validID = true;
+        }
+    }
+
+    while (!validID)
+    {
+        cout << "That ID does not exist, please enter a different one: ";
+
+        serverNum = getNumberFromUser();
+
+        validID = false;
+
+        for (auto i : serverIDs)
+        {
+            if (i == serverNum)
+            {
+                validID = true;
+            }
         }
     }
 

@@ -23,5 +23,11 @@ int addServerDB(int serverNum, string serverName, string serverDir, string serve
 int loadIDs();
 void queryServerData(int serverNum, map<int, string>& serverData);
 void removeServerDB(int serverNum);
+void updateServerNameDB(int serverNum, string serverName);
+void updateServerFolderDB(int serverNum, string serverDir);
+void updateServerJarDB(int serverNum, string serverJar);
+void updateServerRunMemoryDB(int serverNum, string runMemory);
+void updateServerStartMemoryDB(int serverNum, string startMemory);
+void updateServerJavaArgsDB(int serverNum, string javaArgs);
 
 #endif // __SQLFUNC_H_

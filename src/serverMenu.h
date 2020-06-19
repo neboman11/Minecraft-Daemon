@@ -29,6 +29,7 @@ extern vector<int> runningServers;
 
 int serverMenu();
 int getNumberFromUser();
+int getValidServer();
 int getValidRunningServer();
 int getValidStoppedServer();
 bool getYesOrNo();
