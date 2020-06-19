@@ -7,7 +7,7 @@
 
 ## Building
 
-### Prerequisites
+### Dependencies
 
 ```
 tclap
