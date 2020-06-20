@@ -11,7 +11,8 @@ not-a-jar-2
 server.jar
 
 
-n
+y
+-XX:+UseG1GC
 y
 o
 2
