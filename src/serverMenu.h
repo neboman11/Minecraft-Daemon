@@ -1,5 +1,5 @@
 /*
- * Filename:	serverMen.h
+ * Filename:	serverMenu.h
  * Author:		Michael Nesbitt
  *
  * Description:
@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include "mcServer.h"
 #include "sqlFunc.h"
+#include "serverConfig.h"
 
 using namespace std;
 

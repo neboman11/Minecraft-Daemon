@@ -658,6 +658,8 @@ void menuPrint()
     cout << "Run Memory: " << serverData[RUN_MEMORY] << endl;
     cout << "Start Memory: " << serverData[START_MEMORY] << endl;
     cout << "Java Args: " << serverData[JAVA_ARGS] << endl;
+
+    printServerSettings(serverData[DIRECTORY]);
 }
 
 int getNumberFromUser()
