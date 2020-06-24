@@ -8,19 +8,25 @@
  */
 
 #include "mcServer.h"
+#include "sqlFunc.h"
 
 void readServerLog(FILE* pipeFile, MCServer* server);
 
-MCServer::MCServer(string runRAM, string startRAM, string javaArgs, string workDir, string jarFile, int childNum)
+MCServer::MCServer(int serverNum)
 {
-    this->serverNum = childNum;
+    this->serverNum = serverNum;
 
     // Server log object to hold output of child
     log = new ServerLog();
 
+    map<int, string> serverData;
+
+    // Query server data from database
+    queryServerData(serverNum, serverData);
+
     int status;
 
-    status = spawnChild(MCServer::buildArgs(runRAM, startRAM, javaArgs, workDir + "/" + jarFile), workDir);
+    status = spawnChild(MCServer::buildArgs(serverData[RUN_MEMORY], serverData[START_MEMORY], serverData[JAVA_ARGS], serverData[DIRECTORY] + "/" + serverData[JARFILE]), serverData[DIRECTORY]);
 
     // If an error occurred during initialization
     if (status != 0)

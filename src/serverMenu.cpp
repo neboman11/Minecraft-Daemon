@@ -202,14 +202,9 @@ void menuStart(int serverNum)
         }
     }
 
-    map<int, string> serverData;
-
-    // Query server data from database
-    queryServerData(serverNum, serverData);
-
-    writeLog("Starting server " + serverData[NAME]);
+    writeLog("Starting server " + serverNum);
     // Create a new server child process
-    servers[serverNum] = new MCServer(serverData[RUN_MEMORY], serverData[START_MEMORY], serverData[JAVA_ARGS], serverData[DIRECTORY], serverData[JARFILE], serverNum);
+    servers[serverNum] = new MCServer(serverNum);
 
     runningServers.push_back(serverNum);
 }
@@ -459,12 +454,7 @@ void menuCreate()
 
     if (startServer)
     {
-        writeLog("Creating server with ID: " + to_string(serverNum) + " in folder: " + serverDir + " with jar file: " + serverJar + " with " + runRAM + " of RAM");
-
-        // Create a new server child process
-        servers[serverNum] = new MCServer(runRAM, startRAM, javaArgs, serverDir, serverJar, serverNum);
-
-        runningServers.push_back(serverNum);
+        menuStart(serverNum);
     }
 }
 

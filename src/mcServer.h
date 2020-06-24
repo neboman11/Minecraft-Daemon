@@ -43,7 +43,7 @@ private:
 
 public:
     // Create a new serverLog with the given max size
-    MCServer(string runRAM, string startRAM, string javaArgs, string workDir, string jarFile, int childNum);
+    MCServer(int serverNum);
 
     ~MCServer();
     // Get the log as a single string
