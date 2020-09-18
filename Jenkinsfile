@@ -1,20 +1,10 @@
 pipeline {
   agent any
   stages {
-    stage('Setup') {
-      steps {
-        sh 'mkdir build'
-        dir(path: 'build') {
-          sh 'cmake -DCODE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug ..'
-        }
-
-      }
-    }
-
     stage('Build') {
       steps {
         dir(path: 'build') {
-          sh 'make'
+          sh 'echo $PATH'
         }
 
       }
