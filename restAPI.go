@@ -17,10 +17,12 @@ func handleRequests() {
 
 	// GETs
 	myRouter.HandleFunc("/", homePage)
-	myRouter.HandleFunc("/server", listServers).Methods("GET")
+	myRouter.HandleFunc("/server", showServerInfo).Methods("GET")
 	myRouter.HandleFunc("/server/start", startServer).Methods("GET")
 	myRouter.HandleFunc("/server/stop", stopServer).Methods("GET")
-	myRouter.HandleFunc("/log", showLog).Methods("GET")
+	myRouter.HandleFunc("/server/log", showLog).Methods("GET")
+	myRouter.HandleFunc("/servers", listServers).Methods("GET")
+	myRouter.HandleFunc("/servers/running", listRunningServers).Methods("GET")
 
 	// POSTs
 	myRouter.HandleFunc("/server", createServer).Methods("POST")
@@ -32,12 +34,16 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the Home Page!")
 }
 
-func listServers(w http.ResponseWriter, r *http.Request) {
-	encoder := json.NewEncoder(w)
-
-	for e := servers.servers.Front(); e != nil; e = e.Next() {
-		encoder.Encode(e.Value)
+func showServerInfo(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var id int
+	err := json.Unmarshal(reqBody, &id)
+	if err != nil {
+		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
+		return
 	}
+
+	json.NewEncoder(w).Encode(servers.Find(id).Value)
 }
 
 func startServer(w http.ResponseWriter, r *http.Request) {
@@ -109,6 +115,27 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 	serverInfo := runningServers.Find(id).Value.(runningServer)
 
 	fmt.Fprintf(w, "%s", serverInfo.Log.getLog())
+}
+
+func listServers(w http.ResponseWriter, r *http.Request) {
+	encoder := json.NewEncoder(w)
+
+	for e := servers.servers.Front(); e != nil; e = e.Next() {
+		encoder.Encode(e.Value)
+	}
+}
+
+func listRunningServers(w http.ResponseWriter, r *http.Request) {
+	encoder := json.NewEncoder(w)
+
+	if runningServers.servers.Len() == 0 {
+		fmt.Fprintf(w, "{}")
+		return
+	}
+
+	for e := runningServers.servers.Front(); e != nil; e = e.Next() {
+		encoder.Encode(e.Value)
+	}
 }
 
 func createServer(w http.ResponseWriter, r *http.Request) {
