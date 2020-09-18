@@ -1,3 +1,0 @@
-// The configured options and settings for Minecraft-Daemon
-#define __VERSION_MAJOR_ @Minecraft-Daemon_VERSION_MAJOR@
-#define __VERSION_MINOR_ @Minecraft-Daemon_VERSION_MINOR@

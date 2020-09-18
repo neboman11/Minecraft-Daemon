@@ -1,0 +1,9 @@
+[Daemon]
+Verbose=true
+LogFile="minecraft-daemon.log"
+JavaPath="/usr/bin/java"
+Port=10000
+
+[Database]
+Database="sqlite"
+DatabaseFile="test.db"
