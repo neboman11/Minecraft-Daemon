@@ -3,10 +3,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        dir(path: 'build') {
-          sh '/usr/lib/go-1.15/bin/go build'
-        }
-
+        sh '/usr/lib/go-1.15/bin/go build'
       }
     }
 
