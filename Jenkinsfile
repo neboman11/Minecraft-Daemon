@@ -4,7 +4,7 @@ pipeline {
     stage('Build') {
       steps {
         dir(path: 'build') {
-          sh 'echo $PATH'
+          sh 'go build'
         }
 
       }
@@ -12,14 +12,14 @@ pipeline {
 
     stage('Save Executable') {
       steps {
-        archiveArtifacts(artifacts: 'build/src/Minecraft-Daemon', caseSensitive: true)
+        archiveArtifacts(artifacts: 'Minecraft-Daemon', caseSensitive: true)
       }
     }
 
     stage('Test') {
       steps {
         dir(path: 'build') {
-          sh 'ctest || true'
+          sh 'go test || true'
         }
 
       }
