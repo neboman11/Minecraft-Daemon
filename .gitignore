@@ -21,3 +21,4 @@ test.db
 
 # Binaries
 Minecraft-Daemon
+*.exe
