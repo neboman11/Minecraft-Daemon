@@ -43,7 +43,15 @@ func showServerInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(servers.Find(id).Value)
+	temp := servers.Find(id)
+
+	if temp == nil {
+		fmt.Fprintf(w, "Server does not exist!")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(temp.Value)
 }
 
 func startServer(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +63,14 @@ func startServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serverInfo := servers.Find(id).Value.(serverData)
+	temp := servers.Find(id)
+
+	if temp == nil {
+		fmt.Fprintf(w, "Server does not exist!")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	serverInfo := temp.Value.(serverData)
 
 	var cmd *exec.Cmd
 
@@ -94,7 +109,14 @@ func stopServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serverInfo := runningServers.Find(id).Value.(runningServer)
+	temp := runningServers.Find(id)
+
+	if temp == nil {
+		fmt.Fprintf(w, "Server does not exist!")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	serverInfo := temp.Value.(runningServer)
 
 	stdin := serverInfo.Stdin
 	go func() {
@@ -112,7 +134,14 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serverInfo := runningServers.Find(id).Value.(runningServer)
+	temp := runningServers.Find(id)
+
+	if temp == nil {
+		fmt.Fprintf(w, "Server does not exist!")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	serverInfo := temp.Value.(runningServer)
 
 	fmt.Fprintf(w, "%s", serverInfo.Log.getLog())
 }
