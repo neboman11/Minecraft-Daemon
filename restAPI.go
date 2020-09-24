@@ -27,8 +27,13 @@ func handleRequests() {
 	// POSTs
 	myRouter.HandleFunc("/server", createServer).Methods("POST")
 
+	// DELETEs
+	myRouter.HandleFunc("/server", removeServer).Methods("DELETE")
+
 	log.Fatal(http.ListenAndServe(":"+fmt.Sprint(config.Daemon.Port), myRouter))
 }
+
+// GETs
 
 func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the Home Page!")
@@ -109,11 +114,19 @@ func stopServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	temp := runningServers.Find(id)
+	temp := servers.Find(id)
 
 	if temp == nil {
 		fmt.Fprintf(w, "Server does not exist!")
 		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	temp = runningServers.Find(id)
+
+	if temp == nil {
+		fmt.Fprintf(w, "Server is not running!")
+		w.WriteHeader(http.StatusTooEarly)
 		return
 	}
 	serverInfo := temp.Value.(runningServer)
@@ -123,6 +136,8 @@ func stopServer(w http.ResponseWriter, r *http.Request) {
 		defer stdin.Close()
 		io.WriteString(stdin, "stop\n")
 	}()
+
+	runningServers.servers.Remove(temp)
 }
 
 func showLog(w http.ResponseWriter, r *http.Request) {
@@ -134,11 +149,19 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	temp := runningServers.Find(id)
+	temp := servers.Find(id)
 
 	if temp == nil {
 		fmt.Fprintf(w, "Server does not exist!")
 		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	temp = runningServers.Find(id)
+
+	if temp == nil {
+		fmt.Fprintf(w, "Server is not running!")
+		w.WriteHeader(http.StatusTooEarly)
 		return
 	}
 	serverInfo := temp.Value.(runningServer)
@@ -167,6 +190,8 @@ func listRunningServers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// POSTs
+
 func createServer(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	var server serverData
@@ -176,7 +201,51 @@ func createServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	temp := servers.Find(server.ID)
+
+	if temp != nil {
+		fmt.Fprintf(w, "Server ID already exists!")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	servers.servers.PushBack(server)
 
 	fmt.Fprintf(w, "Server created")
+}
+
+// DELETEs
+
+func removeServer(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var id int
+	err := json.Unmarshal(reqBody, &id)
+	if err != nil {
+		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
+		return
+	}
+
+	temp := servers.Find(id)
+
+	if temp == nil {
+		fmt.Fprintf(w, "Server does not exist!")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	temp = runningServers.Find(id)
+
+	if temp != nil {
+		serverInfo := temp.Value.(runningServer)
+
+		stdin := serverInfo.Stdin
+		go func() {
+			defer stdin.Close()
+			io.WriteString(stdin, "stop\n")
+		}()
+
+		runningServers.servers.Remove(temp)
+	}
+
+	servers.servers.Remove(servers.Find(id))
 }
