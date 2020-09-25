@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -40,11 +41,16 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func showServerInfo(w http.ResponseWriter, r *http.Request) {
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	var id int
-	err := json.Unmarshal(reqBody, &id)
+	keys, ok := r.URL.Query()["id"]
+
+	if !ok || len(keys[0]) < 1 {
+		log.Println("Url Param 'id' is missing")
+		return
+	}
+
+	id, err := strconv.Atoi(keys[0])
 	if err != nil {
-		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
+		fmt.Fprintf(w, "Unable to read ID: %s", err)
 		return
 	}
 
@@ -60,11 +66,16 @@ func showServerInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func startServer(w http.ResponseWriter, r *http.Request) {
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	var id int
-	err := json.Unmarshal(reqBody, &id)
+	keys, ok := r.URL.Query()["id"]
+
+	if !ok || len(keys[0]) < 1 {
+		log.Println("Url Param 'id' is missing")
+		return
+	}
+
+	id, err := strconv.Atoi(keys[0])
 	if err != nil {
-		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
+		fmt.Fprintf(w, "Unable to read ID: %s", err)
 		return
 	}
 
@@ -106,11 +117,16 @@ func startServer(w http.ResponseWriter, r *http.Request) {
 }
 
 func stopServer(w http.ResponseWriter, r *http.Request) {
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	var id int
-	err := json.Unmarshal(reqBody, &id)
+	keys, ok := r.URL.Query()["id"]
+
+	if !ok || len(keys[0]) < 1 {
+		log.Println("Url Param 'id' is missing")
+		return
+	}
+
+	id, err := strconv.Atoi(keys[0])
 	if err != nil {
-		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
+		fmt.Fprintf(w, "Unable to read ID: %s", err)
 		return
 	}
 
@@ -141,11 +157,16 @@ func stopServer(w http.ResponseWriter, r *http.Request) {
 }
 
 func showLog(w http.ResponseWriter, r *http.Request) {
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	var id int
-	err := json.Unmarshal(reqBody, &id)
+	keys, ok := r.URL.Query()["id"]
+
+	if !ok || len(keys[0]) < 1 {
+		log.Println("Url Param 'id' is missing")
+		return
+	}
+
+	id, err := strconv.Atoi(keys[0])
 	if err != nil {
-		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
+		fmt.Fprintf(w, "Unable to read ID: %s", err)
 		return
 	}
 
@@ -217,11 +238,16 @@ func createServer(w http.ResponseWriter, r *http.Request) {
 // DELETEs
 
 func removeServer(w http.ResponseWriter, r *http.Request) {
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	var id int
-	err := json.Unmarshal(reqBody, &id)
+	keys, ok := r.URL.Query()["id"]
+
+	if !ok || len(keys[0]) < 1 {
+		log.Println("Url Param 'id' is missing")
+		return
+	}
+
+	id, err := strconv.Atoi(keys[0])
 	if err != nil {
-		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
+		fmt.Fprintf(w, "Unable to read ID: %s", err)
 		return
 	}
 
