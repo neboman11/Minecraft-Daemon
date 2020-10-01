@@ -193,9 +193,18 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 func listServers(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 
-	for e := servers.servers.Front(); e != nil; e = e.Next() {
-		encoder.Encode(e.Value)
+	if servers.servers.Len() == 0 {
+		fmt.Fprintf(w, "{}")
+		return
 	}
+
+	var temp []serverData
+
+	for e := servers.servers.Front(); e != nil; e = e.Next() {
+		temp = append(temp, e.Value.(serverData))
+	}
+
+	encoder.Encode(temp)
 }
 
 func listRunningServers(w http.ResponseWriter, r *http.Request) {
@@ -206,9 +215,13 @@ func listRunningServers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var temp []serverData
+
 	for e := runningServers.servers.Front(); e != nil; e = e.Next() {
-		encoder.Encode(e.Value)
+		temp = append(temp, e.Value.(serverData))
 	}
+
+	encoder.Encode(temp)
 }
 
 // POSTs
