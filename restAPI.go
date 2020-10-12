@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func handleRequests() {
@@ -31,7 +32,9 @@ func handleRequests() {
 	// DELETEs
 	myRouter.HandleFunc("/server", removeServer).Methods("DELETE")
 
-	log.Fatal(http.ListenAndServe(":"+fmt.Sprint(config.Daemon.Port), myRouter))
+	handler := cors.Default().Handler(myRouter)
+
+	log.Fatal(http.ListenAndServe(":"+fmt.Sprint(config.Daemon.Port), handler))
 }
 
 // GETs
