@@ -182,20 +182,14 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 
 func listServers(w http.ResponseWriter, r *http.Request) {
 	// TODO: Rewrite for database
-	// encoder := json.NewEncoder(w)
+	encoder := json.NewEncoder(w)
 
-	// if servers.servers.Len() == 0 {
-	// 	fmt.Fprintf(w, "{}")
-	// 	return
-	// }
+	servers := collectServerData()
+	if servers == nil {
+		fmt.Fprintf(w, "Error reading server list")
+	}
 
-	// var temp []serverData
-
-	// for e := servers.servers.Front(); e != nil; e = e.Next() {
-	// 	temp = append(temp, e.Value.(serverData))
-	// }
-
-	// encoder.Encode(temp)
+	encoder.Encode(servers)
 }
 
 func listRunningServers(w http.ResponseWriter, r *http.Request) {

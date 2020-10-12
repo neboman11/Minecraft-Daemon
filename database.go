@@ -120,3 +120,21 @@ func addServer2Database(server requestServer) {
 		fmt.Println(err)
 	}
 }
+
+func collectServerData() []databaseServer {
+	result, err := db.Queryx("SELECT * FROM " + serverTable)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var serverList []databaseServer
+	for result.Next() {
+		var temp databaseServer
+		if err := result.StructScan(&temp); err != nil {
+			return nil
+		}
+		serverList = append(serverList, temp)
+	}
+
+	return serverList
+}
