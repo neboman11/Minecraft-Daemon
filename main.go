@@ -19,14 +19,18 @@ type daemonConfig struct {
 }
 
 type databaseConfig struct {
-	Database     string
-	DatabaseFile string
+	Database         string
+	DatabaseHost     string
+	DatabasePort     int
+	DatabaseDatabase string
+	DatabaseUser     string
+	DatabasePassword string
 }
 
 var config configuration
 
 func main() {
-	servers = newServerList()
+	// servers = newServerList()
 	runningServers = newRunningServerList()
 
 	viper.SetConfigName("minecraft-daemon")
@@ -37,6 +41,10 @@ func main() {
 		panic(fmt.Errorf("Fatal error in config file: %s", err))
 	}
 	viper.Unmarshal(&config)
+
+	databaseSetup()
+
+	connectDatabase()
 
 	fmt.Println("Ready for requests")
 	handleRequests()

@@ -54,15 +54,16 @@ func showServerInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	temp := servers.Find(id)
+	temp, err := getServerData(id)
 
-	if temp == nil {
+	// Might lead to hard to find bugs
+	if temp == nil || err != nil {
 		fmt.Fprintf(w, "Server does not exist!")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	json.NewEncoder(w).Encode(temp.Value)
+	json.NewEncoder(w).Encode(temp)
 }
 
 func startServer(w http.ResponseWriter, r *http.Request) {
@@ -79,19 +80,19 @@ func startServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	temp := servers.Find(id)
+	serverInfo, err := getServerData(id)
 
-	if temp == nil {
+	// Might lead to hard to find bugs
+	if serverInfo == nil || err != nil {
 		fmt.Fprintf(w, "Server does not exist!")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	serverInfo := temp.Value.(serverData)
 
 	var cmd *exec.Cmd
 
-	if len(serverInfo.JavaArgs) > 0 {
-		cmd = exec.Command(config.Daemon.JavaPath, "-Xmx"+serverInfo.RunMemory, "-Xms"+serverInfo.StartMemory, serverInfo.JavaArgs, "-jar", serverInfo.JarFile, "nogui")
+	if serverInfo.JavaArgs.Valid {
+		cmd = exec.Command(config.Daemon.JavaPath, "-Xmx"+serverInfo.RunMemory, "-Xms"+serverInfo.StartMemory, serverInfo.JavaArgs.String, "-jar", serverInfo.JarFile, "nogui")
 	} else {
 		cmd = exec.Command(config.Daemon.JavaPath, "-Xmx"+serverInfo.RunMemory, "-Xms"+serverInfo.StartMemory, "-jar", serverInfo.JarFile, "nogui")
 	}
@@ -130,15 +131,7 @@ func stopServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	temp := servers.Find(id)
-
-	if temp == nil {
-		fmt.Fprintf(w, "Server does not exist!")
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	temp = runningServers.Find(id)
+	temp := runningServers.Find(id)
 
 	if temp == nil {
 		fmt.Fprintf(w, "Server is not running!")
@@ -170,15 +163,12 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	temp := servers.Find(id)
+	/* TODO: Add check for running server
+	 * 		 If running: follow code bellow
+	 * 		 Else: read the latest log file in the server dir
+	 */
 
-	if temp == nil {
-		fmt.Fprintf(w, "Server does not exist!")
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	temp = runningServers.Find(id)
+	temp := runningServers.Find(id)
 
 	if temp == nil {
 		fmt.Fprintf(w, "Server is not running!")
@@ -191,34 +181,35 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func listServers(w http.ResponseWriter, r *http.Request) {
-	encoder := json.NewEncoder(w)
+	// TODO: Rewrite for database
+	// encoder := json.NewEncoder(w)
 
-	if servers.servers.Len() == 0 {
-		fmt.Fprintf(w, "{}")
-		return
-	}
+	// if servers.servers.Len() == 0 {
+	// 	fmt.Fprintf(w, "{}")
+	// 	return
+	// }
 
-	var temp []serverData
+	// var temp []serverData
 
-	for e := servers.servers.Front(); e != nil; e = e.Next() {
-		temp = append(temp, e.Value.(serverData))
-	}
+	// for e := servers.servers.Front(); e != nil; e = e.Next() {
+	// 	temp = append(temp, e.Value.(serverData))
+	// }
 
-	encoder.Encode(temp)
+	// encoder.Encode(temp)
 }
 
 func listRunningServers(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 
 	if runningServers.servers.Len() == 0 {
-		fmt.Fprintf(w, "{}")
+		fmt.Fprintf(w, "[]")
 		return
 	}
 
-	var temp []serverData
+	var temp []int
 
 	for e := runningServers.servers.Front(); e != nil; e = e.Next() {
-		temp = append(temp, e.Value.(serverData))
+		temp = append(temp, e.Value.(runningServer).ID)
 	}
 
 	encoder.Encode(temp)
@@ -228,22 +219,24 @@ func listRunningServers(w http.ResponseWriter, r *http.Request) {
 
 func createServer(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	var server serverData
+	var server requestServer
 	err := json.Unmarshal(reqBody, &server)
 	if err != nil {
 		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
 		return
 	}
 
-	temp := servers.Find(server.ID)
+	// TODO: Rewrite for checking the database
+	// TODO: Add checks for lengths of fields
+	// temp := servers.Find(server.ID)
 
-	if temp != nil {
-		fmt.Fprintf(w, "Server ID already exists!")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	// if temp != nil {
+	// 	fmt.Fprintf(w, "Server ID already exists!")
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
 
-	servers.servers.PushBack(server)
+	addServer2Database(server)
 
 	fmt.Fprintf(w, "Server created")
 }
@@ -264,18 +257,19 @@ func removeServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	temp := servers.Find(id)
+	temp, err := getServerData(id)
 
-	if temp == nil {
+	// Might lead to hard to find bugs
+	if temp == nil || err != nil {
 		fmt.Fprintf(w, "Server does not exist!")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	temp = runningServers.Find(id)
+	temp2 := runningServers.Find(id)
 
 	if temp != nil {
-		serverInfo := temp.Value.(runningServer)
+		serverInfo := temp2.Value.(runningServer)
 
 		stdin := serverInfo.Stdin
 		go func() {
@@ -283,8 +277,9 @@ func removeServer(w http.ResponseWriter, r *http.Request) {
 			io.WriteString(stdin, "stop\n")
 		}()
 
-		runningServers.servers.Remove(temp)
+		runningServers.servers.Remove(temp2)
 	}
 
-	servers.servers.Remove(servers.Find(id))
+	// TODO: Rewrite for database
+	// servers.servers.Remove(servers.Find(id))
 }

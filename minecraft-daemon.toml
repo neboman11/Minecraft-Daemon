@@ -5,5 +5,9 @@ JavaPath="/usr/bin/java"
 Port=10000
 
 [Database]
-Database="sqlite"
-DatabaseFile="test.db"
+Database="mysql"
+DatabaseHost="localhost"
+DatabasePort=3306
+DatabaseDatabase="minecraft_daemon"
+DatabaseUser="minecraft"
+DatabasePassword="minecraft"
