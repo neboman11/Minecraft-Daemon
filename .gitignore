@@ -6,19 +6,11 @@
 *.conf
 
 # Keep the test config file to make it easier to work on (it's also an example config file)
-!minecraft-deamon.conf
-
-# Gcov files
-*.gcno
-
-# Exclude build director
-build/*
-/.vs
-/out/build/x64-Debug (default)
-
-# Test database
-test.db
+!minecraft-deamon.toml
 
 # Binaries
 Minecraft-Daemon
 *.exe
+
+# Unnecessary go files
+go.sum
