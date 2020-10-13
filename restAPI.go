@@ -184,7 +184,6 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func listServers(w http.ResponseWriter, r *http.Request) {
-	// TODO: Rewrite for database
 	encoder := json.NewEncoder(w)
 
 	servers := collectServerData()

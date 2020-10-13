@@ -33,6 +33,16 @@ type databaseServer struct {
 	JavaArgs    sql.NullString `json:"java_args"`
 }
 
+type responseServer struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Directory   string `json:"directory"`
+	JarFile     string `json:"jar_file"`
+	RunMemory   string `json:"run_memory"`
+	StartMemory string `json:"start_memory"`
+	JavaArgs    string `json:"java_args"`
+}
+
 var db *sqlx.DB
 
 func databaseSetup() {
@@ -121,19 +131,28 @@ func addServer2Database(server requestServer) {
 	}
 }
 
-func collectServerData() []databaseServer {
+func collectServerData() []responseServer {
 	result, err := db.Queryx("SELECT * FROM " + serverTable)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	var serverList []databaseServer
+	var serverList []responseServer
 	for result.Next() {
 		var temp databaseServer
 		if err := result.StructScan(&temp); err != nil {
 			return nil
 		}
-		serverList = append(serverList, temp)
+		server := responseServer{
+			temp.ID,
+			temp.Name,
+			temp.Directory,
+			temp.JarFile,
+			temp.RunMemory,
+			temp.StartMemory,
+			temp.JavaArgs.String,
+		}
+		serverList = append(serverList, server)
 	}
 
 	return serverList
