@@ -42,7 +42,8 @@ func main() {
 	}
 	viper.Unmarshal(&config)
 
-	databaseSetup()
+	// This should be done by an installer or initial script.
+	// databaseSetup()
 
 	connectDatabase()
 

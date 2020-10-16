@@ -57,7 +57,7 @@ func showServerInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	temp, err := getServerData(id)
+	temp, err := getSingleServerData(id)
 
 	// Might lead to hard to find bugs
 	if temp == nil || err != nil {
@@ -83,7 +83,7 @@ func startServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serverInfo, err := getServerData(id)
+	serverInfo, err := getSingleServerData(id)
 
 	// Might lead to hard to find bugs
 	if serverInfo == nil || err != nil {
@@ -94,8 +94,8 @@ func startServer(w http.ResponseWriter, r *http.Request) {
 
 	var cmd *exec.Cmd
 
-	if serverInfo.JavaArgs.Valid {
-		cmd = exec.Command(config.Daemon.JavaPath, "-Xmx"+serverInfo.RunMemory, "-Xms"+serverInfo.StartMemory, serverInfo.JavaArgs.String, "-jar", serverInfo.JarFile, "nogui")
+	if len(serverInfo.JavaArgs) > 0 {
+		cmd = exec.Command(config.Daemon.JavaPath, "-Xmx"+serverInfo.RunMemory, "-Xms"+serverInfo.StartMemory, serverInfo.JavaArgs, "-jar", serverInfo.JarFile, "nogui")
 	} else {
 		cmd = exec.Command(config.Daemon.JavaPath, "-Xmx"+serverInfo.RunMemory, "-Xms"+serverInfo.StartMemory, "-jar", serverInfo.JarFile, "nogui")
 	}
@@ -166,13 +166,9 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/* TODO: Add check for running server
-	 * 		 If running: follow code bellow
-	 * 		 Else: read the latest log file in the server dir
-	 */
-
 	temp := runningServers.Find(id)
 
+	// TODO: If server is running (temp == nil) send latest log file contents (should be logs/latest.log)
 	if temp == nil {
 		fmt.Fprintf(w, "Server is not running!")
 		w.WriteHeader(http.StatusTooEarly)
@@ -222,17 +218,27 @@ func createServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Rewrite for checking the database
-	// TODO: Add checks for lengths of fields
-	// temp := servers.Find(server.ID)
+	// TODO: Give a better explanation of what field is invalid
+	validServer := checkFieldLength(server)
+	if !validServer {
+		fmt.Fprintf(w, "Field length too long.")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	// if temp != nil {
-	// 	fmt.Fprintf(w, "Server ID already exists!")
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
+	duplicate, err := checkForDuplicateServer(server.Name, server.Directory)
+	if err != nil {
+		fmt.Fprintf(w, "Unable to check if the given server exists: %s", err)
+		return
+	}
 
-	addServer2Database(server)
+	if duplicate {
+		fmt.Fprintf(w, "Server already exists!")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	addServerToDatabase(server)
 
 	fmt.Fprintf(w, "Server created")
 }
@@ -253,7 +259,7 @@ func removeServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	temp, err := getServerData(id)
+	temp, err := getSingleServerData(id)
 
 	// Might lead to hard to find bugs
 	if temp == nil || err != nil {
@@ -278,4 +284,29 @@ func removeServer(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: Rewrite for database
 	// servers.servers.Remove(servers.Find(id))
+}
+
+// Helpers
+
+func checkFieldLength(server requestServer) bool {
+	if len(server.Name) > maxNameLength {
+		return false
+	}
+	if len(server.Directory) > maxDirectoryLength {
+		return false
+	}
+	if len(server.JarFile) > maxJarFileLength {
+		return false
+	}
+	if len(server.RunMemory) > maxRunMemoryLength {
+		return false
+	}
+	if len(server.StartMemory) > maxStartMemoryLength {
+		return false
+	}
+	if len(server.JavaArgs) > maxJavaArgsLength {
+		return false
+	}
+
+	return true
 }

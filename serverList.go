@@ -20,21 +20,6 @@ type runningServer struct {
 	Log   *ServerLog
 }
 
-// Rewrite for searching db
-// func (l serverList) Find(i int) *list.Element {
-// 	for e := l.servers.Front(); e != nil; e = e.Next() {
-// 		if e.Value.(serverData).ID == i {
-// 			return e
-// 		}
-// }
-
-// 	return nil
-// }
-
-// func newServerList() *serverList {
-// 	return &serverList{list.New()}
-// }
-
 type runningServerList struct {
 	servers *list.List
 }
@@ -53,5 +38,4 @@ func newRunningServerList() *runningServerList {
 	return &runningServerList{list.New()}
 }
 
-// var servers *serverList
 var runningServers *runningServerList
