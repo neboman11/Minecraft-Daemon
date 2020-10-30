@@ -7,15 +7,17 @@ import (
 )
 
 type configuration struct {
-	Daemon   daemonConfig
-	Database databaseConfig
+	Daemon    daemonConfig
+	Database  databaseConfig
+	FileStore fileStoreConfig
 }
 
 type daemonConfig struct {
-	Verbose  bool
-	LogFile  string
-	JavaPath string
-	Port     int
+	Verbose   bool
+	LogFile   string
+	JavaPath  string
+	Port      int
+	ServerDir string
 }
 
 type databaseConfig struct {
@@ -25,6 +27,12 @@ type databaseConfig struct {
 	DatabaseDatabase string
 	DatabaseUser     string
 	DatabasePassword string
+}
+
+type fileStoreConfig struct {
+	JarStore    string
+	ModStore    string
+	PluginStore string
 }
 
 var config configuration

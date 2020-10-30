@@ -69,6 +69,7 @@ func showServerInfo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(temp)
 }
 
+// TODO: Break actual server starting code to separate function
 func startServer(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
 
@@ -168,7 +169,7 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 
 	temp := runningServers.Find(id)
 
-	// TODO: If server is running (temp == nil) send latest log file contents (should be logs/latest.log)
+	// TODO: If server is not running (meaning temp == nil), send latest log file contents (should be logs/latest.log)
 	if temp == nil {
 		fmt.Fprintf(w, "Server is not running!")
 		w.WriteHeader(http.StatusTooEarly)
@@ -239,6 +240,9 @@ func createServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	addServerToDatabase(server)
+
+	// TODO: Create server dir
+	// TODO: Write eula file to server dir
 
 	fmt.Fprintf(w, "Server created")
 }
