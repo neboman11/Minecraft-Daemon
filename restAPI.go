@@ -26,6 +26,9 @@ func handleRequests() {
 	myRouter.HandleFunc("/servers", listServers).Methods("GET")
 	myRouter.HandleFunc("/servers/running", listRunningServers).Methods("GET")
 
+	// PATCHs
+	myRouter.HandleFunc("/server", modifyServer).Methods("PATCH")
+
 	// POSTs
 	myRouter.HandleFunc("/server", createServer).Methods("POST")
 
@@ -47,12 +50,14 @@ func showServerInfo(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
 
 	if !ok || len(keys[0]) < 1 {
-		log.Println("Url Param 'id' is missing")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Url Param 'id' is missing")
 		return
 	}
 
 	id, err := strconv.Atoi(keys[0])
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Unable to read ID: %s", err)
 		return
 	}
@@ -61,8 +66,8 @@ func showServerInfo(w http.ResponseWriter, r *http.Request) {
 
 	// Might lead to hard to find bugs
 	if temp == nil || err != nil {
-		fmt.Fprintf(w, "Server does not exist!")
 		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "Server does not exist!")
 		return
 	}
 
@@ -74,12 +79,14 @@ func startServer(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
 
 	if !ok || len(keys[0]) < 1 {
-		log.Println("Url Param 'id' is missing")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Url Param 'id' is missing")
 		return
 	}
 
 	id, err := strconv.Atoi(keys[0])
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Unable to read ID: %s", err)
 		return
 	}
@@ -88,8 +95,8 @@ func startServer(w http.ResponseWriter, r *http.Request) {
 
 	// Might lead to hard to find bugs
 	if serverInfo == nil || err != nil {
-		fmt.Fprintf(w, "Server does not exist!")
 		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "Server does not exist!")
 		return
 	}
 
@@ -125,12 +132,14 @@ func stopServer(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
 
 	if !ok || len(keys[0]) < 1 {
-		log.Println("Url Param 'id' is missing")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Url Param 'id' is missing")
 		return
 	}
 
 	id, err := strconv.Atoi(keys[0])
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Unable to read ID: %s", err)
 		return
 	}
@@ -138,8 +147,8 @@ func stopServer(w http.ResponseWriter, r *http.Request) {
 	temp := runningServers.Find(id)
 
 	if temp == nil {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Server is not running!")
-		w.WriteHeader(http.StatusTooEarly)
 		return
 	}
 	serverInfo := temp.Value.(runningServer)
@@ -157,12 +166,14 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
 
 	if !ok || len(keys[0]) < 1 {
-		log.Println("Url Param 'id' is missing")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Url Param 'id' is missing")
 		return
 	}
 
 	id, err := strconv.Atoi(keys[0])
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Unable to read ID: %s", err)
 		return
 	}
@@ -171,8 +182,8 @@ func showLog(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: If server is not running (meaning temp == nil), send latest log file contents (should be logs/latest.log)
 	if temp == nil {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Server is not running!")
-		w.WriteHeader(http.StatusTooEarly)
 		return
 	}
 	serverInfo := temp.Value.(runningServer)
@@ -185,6 +196,7 @@ func listServers(w http.ResponseWriter, r *http.Request) {
 
 	servers := collectServerData()
 	if servers == nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Error reading server list")
 	}
 
@@ -208,6 +220,29 @@ func listRunningServers(w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(temp)
 }
 
+// PATCHs
+
+func modifyServer(w http.ResponseWriter, r *http.Request) {
+	keys, ok := r.URL.Query()["id"]
+
+	if !ok || len(keys[0]) < 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Url Param 'id' is missing")
+		return
+	}
+
+	id, err := strconv.Atoi(keys[0])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Unable to read ID: %s", err)
+		return
+	}
+
+	// TODO: Write database function for updating server information
+	// TODO: Restart server somewhere
+	fmt.Fprintf(w, fmt.Sprintf("%d", id))
+}
+
 // POSTs
 
 func createServer(w http.ResponseWriter, r *http.Request) {
@@ -215,27 +250,30 @@ func createServer(w http.ResponseWriter, r *http.Request) {
 	var server requestServer
 	err := json.Unmarshal(reqBody, &server)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
+		fmt.Printf(string(reqBody))
 		return
 	}
 
 	// TODO: Give a better explanation of what field is invalid
 	validServer := checkFieldLength(server)
 	if !validServer {
-		fmt.Fprintf(w, "Field length too long.")
 		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Field length too long.")
 		return
 	}
 
 	duplicate, err := checkForDuplicateServer(server.Name, server.Directory)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Unable to check if the given server exists: %s", err)
 		return
 	}
 
 	if duplicate {
-		fmt.Fprintf(w, "Server already exists!")
 		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Server already exists!")
 		return
 	}
 
@@ -245,6 +283,7 @@ func createServer(w http.ResponseWriter, r *http.Request) {
 	// TODO: Write eula file to server dir
 
 	fmt.Fprintf(w, "Server created")
+	// fmt.Printf("Successfully created server.")
 }
 
 // DELETEs
@@ -253,12 +292,14 @@ func removeServer(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
 
 	if !ok || len(keys[0]) < 1 {
-		log.Println("Url Param 'id' is missing")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Url Param 'id' is missing")
 		return
 	}
 
 	id, err := strconv.Atoi(keys[0])
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Unable to read ID: %s", err)
 		return
 	}
@@ -267,8 +308,8 @@ func removeServer(w http.ResponseWriter, r *http.Request) {
 
 	// Might lead to hard to find bugs
 	if temp == nil || err != nil {
-		fmt.Fprintf(w, "Server does not exist!")
 		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "Server does not exist!")
 		return
 	}
 
