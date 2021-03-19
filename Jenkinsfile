@@ -1,35 +1,22 @@
 pipeline {
   agent any
   stages {
-    stage('Setup') {
-      steps {
-        sh 'mkdir build'
-        dir(path: 'build') {
-          sh 'cmake -DCODE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug ..'
-        }
-
-      }
-    }
-
     stage('Build') {
       steps {
-        dir(path: 'build') {
-          sh 'make'
-        }
-
+        sh '/usr/lib/go-1.15/bin/go build'
       }
     }
 
     stage('Save Executable') {
       steps {
-        archiveArtifacts(artifacts: 'build/src/Minecraft-Daemon', caseSensitive: true)
+        archiveArtifacts(artifacts: 'Minecraft-Daemon', caseSensitive: true)
       }
     }
 
     stage('Test') {
       steps {
         dir(path: 'build') {
-          sh 'ctest || true'
+          sh '/usr/lib/go-1.15/bin/go test || true'
         }
 
       }
