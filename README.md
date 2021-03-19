@@ -7,21 +7,11 @@
 
 ## Building
 
-### Dependencies
-
-```
-tclap
-rudeconfig
-sqlite3
-```
-
-To build, run:
+To build and run:
 
 ```sh
 git clone https://github.com/neboman11/Minecraft-Daemon
 cd Minecraft-Daemon
-mkdir build
-cd build
-cmake ..
-make
+go build
+./Minecraft-Daemon
 ```
