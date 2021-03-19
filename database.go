@@ -239,6 +239,50 @@ func checkForDuplicateServer(name, directory string) (bool, error) {
 	return false, nil
 }
 
+func checkForDuplicateServerName(name string) (bool, error) {
+	result, err := db.Queryx("SELECT * FROM " + serverTable + " WHERE `name` = \"" + name + "\"")
+	if err != nil {
+		return true, err
+	}
+
+	defer result.Close()
+
+	var temp databaseServer
+	for result.Next() {
+		if err := result.StructScan(&temp); err != nil {
+			return true, err
+		}
+	}
+
+	if len(temp.Name) > 0 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func checkForDuplicateServerDir(directory string) (bool, error) {
+	result, err := db.Queryx("SELECT * FROM " + serverTable + " WHERE `directory` = \"" + directory + "\"")
+	if err != nil {
+		return true, err
+	}
+
+	defer result.Close()
+
+	var temp databaseServer
+	for result.Next() {
+		if err := result.StructScan(&temp); err != nil {
+			return true, err
+		}
+	}
+
+	if len(temp.Name) > 0 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 func modifyServerEntry(server requestServer, serverID int) error {
 	result, err := db.Queryx("UPDATE " + serverTable + " SET name = \"" + server.Name + "\", directory = \"" + server.Directory + "\", jarfile = \"" + server.JarFile + "\", runmemory = \"" + server.RunMemory + "\", startmemory = \"" + server.StartMemory + "\", javaargs = \"" + server.JavaArgs + "\" WHERE `id` = " + fmt.Sprintf("%d", serverID))
 	if err != nil {

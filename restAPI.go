@@ -25,7 +25,9 @@ func handleRequests() {
 	myRouter.HandleFunc("/server/log", showLog).Methods("GET")
 	myRouter.HandleFunc("/servers", listServers).Methods("GET")
 	myRouter.HandleFunc("/servers/running", listRunningServers).Methods("GET")
-	// TODO: Add route for checking if a server is a duplicate
+	myRouter.HandleFunc("/check/duplicate", checkForDuplicateServerRequest).Methods("GET")
+	myRouter.HandleFunc("/check/duplicate/name", checkForDuplicateServerNameRequest).Methods("GET")
+	myRouter.HandleFunc("/check/duplicate/directory", checkForDuplicateServerDirRequest).Methods("GET")
 
 	// PATCHs
 	myRouter.HandleFunc("/server", modifyServer).Methods("PATCH")
@@ -221,6 +223,7 @@ func listRunningServers(w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(temp)
 }
 
+// TODO: Add ability to ignore a specific server (for updating a server without changing the name/directory)
 func checkForDuplicateServerRequest(w http.ResponseWriter, r *http.Request) {
 	nameKeys, ok := r.URL.Query()["name"]
 
@@ -239,6 +242,54 @@ func checkForDuplicateServerRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	duplicate, err := checkForDuplicateServer(nameKeys[0], dirKeys[0])
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Failed checking if server is a duplicate: %s", err)
+		return
+	}
+
+	if duplicate {
+		fmt.Fprintf(w, "true")
+		return
+	}
+
+	fmt.Fprintf(w, "false")
+}
+
+func checkForDuplicateServerNameRequest(w http.ResponseWriter, r *http.Request) {
+	nameKeys, ok := r.URL.Query()["name"]
+
+	if !ok || len(nameKeys[0]) < 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Url Param 'name' is missing")
+		return
+	}
+
+	duplicate, err := checkForDuplicateServerName(nameKeys[0])
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Failed checking if server is a duplicate: %s", err)
+		return
+	}
+
+	if duplicate {
+		fmt.Fprintf(w, "true")
+		return
+	}
+
+	fmt.Fprintf(w, "false")
+}
+
+func checkForDuplicateServerDirRequest(w http.ResponseWriter, r *http.Request) {
+	nameKeys, ok := r.URL.Query()["directory"]
+
+	if !ok || len(nameKeys[0]) < 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Url Param 'directory' is missing")
+		return
+	}
+
+	duplicate, err := checkForDuplicateServerDir(nameKeys[0])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Failed checking if server is a duplicate: %s", err)
@@ -289,6 +340,7 @@ func modifyServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Add ability to ignore a specific server (for updating a server without changing the name/directory)
 	duplicate, err := checkForDuplicateServer(server.Name, server.Directory)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
