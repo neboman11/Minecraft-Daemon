@@ -4,13 +4,8 @@
 # Extra test files
 *.log
 *.conf
-
-# Keep the test config file to make it easier to work on (it's also an example config file)
-!minecraft-deamon.toml
+*.toml
 
 # Binaries
 Minecraft-Daemon
 *.exe
-
-# Unnecessary go files
-go.sum

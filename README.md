@@ -5,6 +5,18 @@
 
  Open source multicraft clone
 
+## Usage
+
+### Prerequisites
+
+Minecraft-Daemon requires a database to store information in. Currently the only supported database system is MySQL/MariaDB.
+
+A configuration file must also be provided. An example can be found [here](https://github.com/neboman11/Minecraft-Daemon/blob/master/minecraft-daemon.toml.example).
+
+### Running
+
+After filling the configuration file with the desired values, place it in the same folder as the `Minecraft-Daemon` executable. Then simply run the executable.
+
 ## Building
 
 To build and run:
