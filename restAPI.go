@@ -25,6 +25,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/server/log", showLog).Methods("GET")
 	myRouter.HandleFunc("/servers", listServers).Methods("GET")
 	myRouter.HandleFunc("/servers/running", listRunningServers).Methods("GET")
+	// TODO: Add route for checking if a server is a duplicate
 
 	// PATCHs
 	myRouter.HandleFunc("/server", modifyServer).Methods("PATCH")
@@ -220,6 +221,38 @@ func listRunningServers(w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(temp)
 }
 
+func checkForDuplicateServerRequest(w http.ResponseWriter, r *http.Request) {
+	nameKeys, ok := r.URL.Query()["name"]
+
+	if !ok || len(nameKeys[0]) < 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Url Param 'name' is missing")
+		return
+	}
+
+	dirKeys, ok := r.URL.Query()["directory"]
+
+	if !ok || len(dirKeys[0]) < 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Url Param 'directory' is missing")
+		return
+	}
+
+	duplicate, err := checkForDuplicateServer(nameKeys[0], dirKeys[0])
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Failed checking if server is a duplicate: %s", err)
+		return
+	}
+
+	if duplicate {
+		fmt.Fprintf(w, "true")
+		return
+	}
+
+	fmt.Fprintf(w, "false")
+}
+
 // PATCHs
 
 func modifyServer(w http.ResponseWriter, r *http.Request) {
@@ -256,7 +289,19 @@ func modifyServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Write database function for updating server information
+	duplicate, err := checkForDuplicateServer(server.Name, server.Directory)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Failed checking if server is a duplicate: %s", err)
+		return
+	}
+
+	if duplicate {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Server with that name or folder already exists.")
+		return
+	}
+
 	err = modifyServerEntry(server, id)
 	if err != nil {
 		fmt.Fprintf(w, "Failed updating server in database: %s", err)
