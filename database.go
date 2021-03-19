@@ -146,12 +146,28 @@ func requestServerToString(server requestServer) string {
 	return "\"" + server.Name + "\",\"" + server.Directory + "\",\"" + server.JarFile + "\",\"" + server.RunMemory + "\",\"" + server.StartMemory + "\",null"
 }
 
-func addServerToDatabase(server requestServer) {
+func addServerToDatabase(server requestServer) (int, error) {
 	_, err := db.Exec("INSERT INTO " + serverTable + "(" + serverTableColumns + ") " +
 		"VALUES (" + requestServerToString(server) + ")")
 	if err != nil {
-		fmt.Println(err)
+		return 0, err
 	}
+
+	result, err := db.Queryx("SELECT * FROM " + serverTable + " WHERE `name` = \"" + server.Name + "\"")
+	if err != nil {
+		return 0, err
+	}
+
+	defer result.Close()
+
+	var temp databaseServer
+	for result.Next() {
+		if err := result.StructScan(&temp); err != nil {
+			return 0, err
+		}
+	}
+
+	return temp.ID, nil
 }
 
 func collectServerData() []responseServer {
@@ -183,6 +199,7 @@ func collectServerData() []responseServer {
 	return serverList
 }
 
+// A duplicate server is defined by a server having either the same name or directory as another.
 func checkForDuplicateServer(name, directory string) (bool, error) {
 	result, err := db.Queryx("SELECT * FROM " + serverTable + " WHERE `name` = \"" + name + "\"")
 	if err != nil {
@@ -220,4 +237,15 @@ func checkForDuplicateServer(name, directory string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func modifyServerEntry(server requestServer, serverID int) error {
+	result, err := db.Queryx("UPDATE " + serverTable + " SET name = \"" + server.Name + "\", directory = \"" + server.Directory + "\", jarfile = \"" + server.JarFile + "\", runmemory = \"" + server.RunMemory + "\", startmemory = \"" + server.StartMemory + "\", javaargs = \"" + server.JavaArgs + "\" WHERE `id` = " + fmt.Sprintf("%d", serverID))
+	if err != nil {
+		return err
+	}
+
+	defer result.Close()
+
+	return nil
 }

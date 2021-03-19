@@ -238,9 +238,30 @@ func modifyServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var server requestServer
+	err = json.Unmarshal(reqBody, &server)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
+		fmt.Printf(string(reqBody))
+		return
+	}
+
+	// TODO: Give a better explanation of what field is invalid
+	validServer := checkFieldLength(server)
+	if !validServer {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Field length too long.")
+		return
+	}
+
 	// TODO: Write database function for updating server information
+	err = modifyServerEntry(server, id)
+	if err != nil {
+		fmt.Fprintf(w, "Failed updating server in database: %s", err)
+	}
 	// TODO: Restart server somewhere
-	fmt.Fprintf(w, fmt.Sprintf("%d", id))
 }
 
 // POSTs
@@ -277,13 +298,15 @@ func createServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	addServerToDatabase(server)
+	serverID, err := addServerToDatabase(server)
+	if err != nil {
+		fmt.Fprintf(w, "Failed to add server to database: %s", err)
+	}
 
 	// TODO: Create server dir
 	// TODO: Write eula file to server dir
 
-	fmt.Fprintf(w, "Server created")
-	// fmt.Printf("Successfully created server.")
+	fmt.Fprintf(w, "%d", serverID)
 }
 
 // DELETEs
