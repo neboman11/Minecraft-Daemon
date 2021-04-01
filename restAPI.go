@@ -78,6 +78,7 @@ func showServerInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO: Break actual server starting code to separate function
+// TODO: Add writing output of exec to file to catch output of server that fails before it starts writing to the log
 func startServer(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
 
