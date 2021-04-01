@@ -79,6 +79,7 @@ func showServerInfo(w http.ResponseWriter, r *http.Request) {
 
 // TODO: Break actual server starting code to separate function
 // TODO: Add writing output of exec to file to catch output of server that fails before it starts writing to the log
+// TODO: Add way of checking if server is still alive and produce errors, warnings, and other output, and remove it from the list of running servers if it exits outside stopServer()
 func startServer(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
 
@@ -132,6 +133,7 @@ func startServer(w http.ResponseWriter, r *http.Request) {
 	go log.readLog()
 }
 
+// TODO: Wait until child process has exited before removing it from running servers
 func stopServer(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
 
