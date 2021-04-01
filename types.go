@@ -6,6 +6,13 @@ import (
 	"io"
 )
 
+type ServerStatus int
+
+const (
+	Running ServerStatus = iota
+	Stopped
+)
+
 type databaseServer struct {
 	ID          int            `json:"id"`
 	Name        string         `json:"name"`
@@ -17,13 +24,14 @@ type databaseServer struct {
 }
 
 type responseServer struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Directory   string `json:"directory"`
-	JarFile     string `json:"jar_file"`
-	RunMemory   string `json:"run_memory"`
-	StartMemory string `json:"start_memory"`
-	JavaArgs    string `json:"java_args"`
+	ID          int          `json:"id"`
+	Name        string       `json:"name"`
+	Directory   string       `json:"directory"`
+	JarFile     string       `json:"jar_file"`
+	RunMemory   string       `json:"run_memory"`
+	StartMemory string       `json:"start_memory"`
+	JavaArgs    string       `json:"java_args"`
+	Status      ServerStatus `json:"status"`
 }
 
 type requestServer struct {

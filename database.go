@@ -112,6 +112,7 @@ func getSingleServerData(id int) (*responseServer, error) {
 		temp.RunMemory,
 		temp.StartMemory,
 		temp.JavaArgs.String,
+		getServerStatus(temp.ID),
 	}
 
 	return &server, nil
@@ -171,6 +172,7 @@ func collectServerData() []responseServer {
 			temp.RunMemory,
 			temp.StartMemory,
 			temp.JavaArgs.String,
+			getServerStatus(temp.ID),
 		}
 		serverList = append(serverList, server)
 	}
@@ -271,4 +273,13 @@ func modifyServerEntry(server requestServer, serverID int) error {
 	defer result.Close()
 
 	return nil
+}
+
+func getServerStatus(serverID int) ServerStatus {
+	server := runningServers.Find(serverID)
+	if server != nil {
+		return Running
+	} else {
+		return Stopped
+	}
 }
