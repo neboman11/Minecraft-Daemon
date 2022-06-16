@@ -5,104 +5,100 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os/exec"
 	"strconv"
 
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog/log"
 )
 
 func handleRequests() {
-	myRouter := mux.NewRouter().StrictSlash(true)
+	e := echo.New()
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*/*"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
 	// GETs
-	myRouter.HandleFunc("/", homePage)
-	myRouter.HandleFunc("/server", showServerInfo).Methods("GET")
-	myRouter.HandleFunc("/server/start", startServer).Methods("GET")
-	myRouter.HandleFunc("/server/stop", stopServer).Methods("GET")
-	myRouter.HandleFunc("/server/log", showLog).Methods("GET")
-	myRouter.HandleFunc("/servers", listServers).Methods("GET")
-	myRouter.HandleFunc("/servers/running", listRunningServers).Methods("GET")
-	myRouter.HandleFunc("/check/duplicate", checkForDuplicateServerRequest).Methods("GET")
-	myRouter.HandleFunc("/check/duplicate/name", checkForDuplicateServerNameRequest).Methods("GET")
-	myRouter.HandleFunc("/check/duplicate/directory", checkForDuplicateServerDirRequest).Methods("GET")
+	e.GET("/", homePage)
+	e.GET("/server", showServerInfo)
+	e.GET("/server/start", startServer)
+	e.GET("/server/stop", stopServer)
+	e.GET("/server/log", showLog)
+	e.GET("/servers", listServers)
+	e.GET("/servers/running", listRunningServers)
+	e.GET("/check/duplicate", checkForDuplicateServerRequest)
+	e.GET("/check/duplicate/name", checkForDuplicateServerNameRequest)
+	e.GET("/check/duplicate/directory", checkForDuplicateServerDirRequest)
 
 	// PATCHs
-	myRouter.HandleFunc("/server", modifyServer).Methods("PATCH")
+	e.PATCH("/server", modifyServer)
 
 	// POSTs
-	myRouter.HandleFunc("/server", createServer).Methods("POST")
+	e.POST("/server", createServer)
 
 	// DELETEs
-	myRouter.HandleFunc("/server", removeServer).Methods("DELETE")
+	e.DELETE("/server", removeServer)
 
-	handler := cors.Default().Handler(myRouter)
-
-	log.Fatal(http.ListenAndServe(":"+fmt.Sprint(config.Daemon.Port), handler))
+	e.Logger.Fatal(e.Start(":" + fmt.Sprint(config.Daemon.Port)))
 }
 
 // GETs
 
-func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the Home Page!")
+func homePage(c echo.Context) error {
+	return c.String(http.StatusOK, "Welcome to the Home Page!")
 }
 
-func showServerInfo(w http.ResponseWriter, r *http.Request) {
-	keys, ok := r.URL.Query()["id"]
+func showServerInfo(c echo.Context) error {
+	idStr := c.QueryParam("id")
 
-	if !ok || len(keys[0]) < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Url Param 'id' is missing")
-		return
-	}
+	// if !ok || len(keys[0]) < 1 {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
+	// 	return
+	// }
 
-	id, err := strconv.Atoi(keys[0])
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Unable to read ID: %s", err)
-		return
+		return c.String(http.StatusBadRequest, "Unable to read ID: "+err.Error())
 	}
 
 	temp, err := getSingleServerData(id)
 
 	// Might lead to hard to find bugs
 	if temp == nil || err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Server does not exist!")
-		return
+		return c.String(http.StatusNotFound, "Server does not exist!")
 	}
 
-	json.NewEncoder(w).Encode(temp)
+	return c.JSON(http.StatusOK, temp)
 }
 
 // TODO: Break actual server starting code to separate function
 // TODO: Add writing output of exec to file to catch output of server that fails before it starts writing to the log
 // TODO: Add way of checking if server is still alive and produce errors, warnings, and other output, and remove it from the list of running servers if it exits outside stopServer()
-func startServer(w http.ResponseWriter, r *http.Request) {
-	keys, ok := r.URL.Query()["id"]
+func startServer(c echo.Context) error {
+	idStr := c.QueryParam("id")
 
-	if !ok || len(keys[0]) < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Url Param 'id' is missing")
-		return
-	}
+	// if !ok || len(keys[0]) < 1 {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
+	// 	return
+	// }
 
-	id, err := strconv.Atoi(keys[0])
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Unable to read ID: %s", err)
-		return
+		return c.String(http.StatusBadRequest, "Unable to read ID: "+err.Error())
 	}
 
 	serverInfo, err := getSingleServerData(id)
 
 	// Might lead to hard to find bugs
 	if serverInfo == nil || err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Server does not exist!")
-		return
+		return c.String(http.StatusNotFound, "Server does not exist!")
 	}
 
 	var cmd *exec.Cmd
@@ -116,14 +112,14 @@ func startServer(w http.ResponseWriter, r *http.Request) {
 	cmd.Dir = serverInfo.Directory
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		log.Fatal(err)
+		log.Error().Msgf("%s", err)
 	}
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Fatal(err)
+		log.Error().Msgf("%s", err)
 	}
 	if err = cmd.Start(); err != nil {
-		log.Fatal(err)
+		log.Error().Msgf("%s", err)
 	}
 
 	log := NewServerLog(stdout)
@@ -131,31 +127,29 @@ func startServer(w http.ResponseWriter, r *http.Request) {
 	runningServers.servers.PushBack(runningServer{1, stdin, log})
 
 	go log.readLog()
+
+	return c.NoContent(http.StatusOK)
 }
 
 // TODO: Wait until child process has exited before removing it from running servers
-func stopServer(w http.ResponseWriter, r *http.Request) {
-	keys, ok := r.URL.Query()["id"]
+func stopServer(c echo.Context) error {
+	idStr := c.QueryParam("id")
 
-	if !ok || len(keys[0]) < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Url Param 'id' is missing")
-		return
-	}
+	// if !ok || len(keys[0]) < 1 {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
+	// 	return
+	// }
 
-	id, err := strconv.Atoi(keys[0])
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Unable to read ID: %s", err)
-		return
+		return c.String(http.StatusBadRequest, "Unable to read ID: "+err.Error())
 	}
 
 	temp := runningServers.Find(id)
 
 	if temp == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Server is not running!")
-		return
+		return c.String(http.StatusBadRequest, "Server is not running!")
 	}
 	serverInfo := temp.Value.(runningServer)
 
@@ -166,55 +160,47 @@ func stopServer(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	runningServers.servers.Remove(temp)
+
+	return c.NoContent(http.StatusOK)
 }
 
-func showLog(w http.ResponseWriter, r *http.Request) {
-	keys, ok := r.URL.Query()["id"]
+func showLog(c echo.Context) error {
+	idStr := c.QueryParam("id")
 
-	if !ok || len(keys[0]) < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Url Param 'id' is missing")
-		return
-	}
+	// if !ok || len(keys[0]) < 1 {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
+	// 	return
+	// }
 
-	id, err := strconv.Atoi(keys[0])
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Unable to read ID: %s", err)
-		return
+		return c.String(http.StatusBadRequest, "Unable to read ID: "+err.Error())
 	}
 
 	temp := runningServers.Find(id)
 
 	// TODO: If server is not running (meaning temp == nil), send latest log file contents (should be logs/latest.log)
 	if temp == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Server is not running!")
-		return
+		return c.String(http.StatusBadRequest, "Server is not running!")
 	}
 	serverInfo := temp.Value.(runningServer)
 
-	fmt.Fprintf(w, "%s", serverInfo.Log.getLog())
+	return c.String(http.StatusOK, serverInfo.Log.getLog())
 }
 
-func listServers(w http.ResponseWriter, r *http.Request) {
-	encoder := json.NewEncoder(w)
-
+func listServers(c echo.Context) error {
 	servers := collectServerData()
 	if servers == nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Error reading server list")
+		return c.String(http.StatusInternalServerError, "Error reading server list")
 	}
 
-	encoder.Encode(servers)
+	return c.JSON(http.StatusOK, servers)
 }
 
-func listRunningServers(w http.ResponseWriter, r *http.Request) {
-	encoder := json.NewEncoder(w)
-
+func listRunningServers(c echo.Context) error {
 	if runningServers.servers.Len() == 0 {
-		fmt.Fprintf(w, "[]")
-		return
+		return c.String(http.StatusOK, "[]")
 	}
 
 	var temp []int
@@ -223,217 +209,188 @@ func listRunningServers(w http.ResponseWriter, r *http.Request) {
 		temp = append(temp, e.Value.(runningServer).ID)
 	}
 
-	encoder.Encode(temp)
+	return c.JSON(http.StatusOK, temp)
 }
 
 // TODO: Add ability to ignore a specific server (for updating a server without changing the name/directory)
-func checkForDuplicateServerRequest(w http.ResponseWriter, r *http.Request) {
-	nameKeys, ok := r.URL.Query()["name"]
+func checkForDuplicateServerRequest(c echo.Context) error {
+	name := c.QueryParam("name")
 
-	if !ok || len(nameKeys[0]) < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Url Param 'name' is missing")
-		return
-	}
+	// if !ok || len(nameKeys[0]) < 1 {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	fmt.Fprintf(w, "Url Param 'name' is missing")
+	// 	return
+	// }
 
-	dirKeys, ok := r.URL.Query()["directory"]
+	dir := c.QueryParam("directory")
 
-	if !ok || len(dirKeys[0]) < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Url Param 'directory' is missing")
-		return
-	}
+	// if !ok || len(dirKeys[0]) < 1 {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	fmt.Fprintf(w, "Url Param 'directory' is missing")
+	// 	return
+	// }
 
-	duplicate, err := checkForDuplicateServer(nameKeys[0], dirKeys[0])
+	duplicate, err := checkForDuplicateServer(name, dir)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Failed checking if server is a duplicate: %s", err)
-		return
+		return c.String(http.StatusInternalServerError, "Failed checking if server is a duplicate: "+err.Error())
 	}
 
 	if duplicate {
-		fmt.Fprintf(w, "true")
-		return
+		return c.String(http.StatusOK, "true")
 	}
 
-	fmt.Fprintf(w, "false")
+	return c.String(http.StatusOK, "false")
 }
 
-func checkForDuplicateServerNameRequest(w http.ResponseWriter, r *http.Request) {
-	nameKeys, ok := r.URL.Query()["name"]
+func checkForDuplicateServerNameRequest(c echo.Context) error {
+	name := c.QueryParam("name")
 
-	if !ok || len(nameKeys[0]) < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Url Param 'name' is missing")
-		return
-	}
+	// if !ok || len(nameKeys[0]) < 1 {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	fmt.Fprintf(w, "Url Param 'name' is missing")
+	// 	return
+	// }
 
-	duplicate, err := checkForDuplicateServerName(nameKeys[0])
+	duplicate, err := checkForDuplicateServerName(name)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Failed checking if server is a duplicate: %s", err)
-		return
+		return c.String(http.StatusInternalServerError, "Failed checking if server is a duplicate: "+err.Error())
 	}
 
 	if duplicate {
-		fmt.Fprintf(w, "true")
-		return
+		return c.String(http.StatusOK, "true")
 	}
 
-	fmt.Fprintf(w, "false")
+	return c.String(http.StatusOK, "false")
 }
 
-func checkForDuplicateServerDirRequest(w http.ResponseWriter, r *http.Request) {
-	nameKeys, ok := r.URL.Query()["directory"]
+func checkForDuplicateServerDirRequest(c echo.Context) error {
+	dir := c.QueryParam("directory")
 
-	if !ok || len(nameKeys[0]) < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Url Param 'directory' is missing")
-		return
-	}
+	// if !ok || len(nameKeys[0]) < 1 {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	fmt.Fprintf(w, "Url Param 'directory' is missing")
+	// 	return
+	// }
 
-	duplicate, err := checkForDuplicateServerDir(nameKeys[0])
+	duplicate, err := checkForDuplicateServerDir(dir)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Failed checking if server is a duplicate: %s", err)
-		return
+		return c.String(http.StatusInternalServerError, "Failed checking if server is a duplicate: "+err.Error())
 	}
 
 	if duplicate {
-		fmt.Fprintf(w, "true")
-		return
+		return c.String(http.StatusOK, "true")
 	}
 
-	fmt.Fprintf(w, "false")
+	return c.String(http.StatusOK, "false")
 }
 
 // PATCHs
 
-func modifyServer(w http.ResponseWriter, r *http.Request) {
-	keys, ok := r.URL.Query()["id"]
+func modifyServer(c echo.Context) error {
+	idStr := c.QueryParam("id")
 
-	if !ok || len(keys[0]) < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Url Param 'id' is missing")
-		return
-	}
+	// if !ok || len(keys[0]) < 1 {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
+	// 	return
+	// }
 
-	id, err := strconv.Atoi(keys[0])
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Unable to read ID: %s", err)
-		return
+		return c.String(http.StatusBadRequest, "Unable to read ID: "+err.Error())
 	}
 
-	reqBody, _ := ioutil.ReadAll(r.Body)
+	reqBody, _ := ioutil.ReadAll(c.Request().Body)
 	var server requestServer
 	err = json.Unmarshal(reqBody, &server)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
-		fmt.Printf(string(reqBody))
-		return
+		log.Info().Msg(string(reqBody))
+		return c.String(http.StatusBadRequest, "Unable to unmarshal json body: "+err.Error())
 	}
 
 	// TODO: Give a better explanation of what field is invalid
 	validServer := checkFieldLength(server)
 	if !validServer {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Field length too long.")
-		return
+		return c.String(http.StatusBadRequest, "Field length too long")
 	}
 
 	// TODO: Add ability to ignore a specific server (for updating a server without changing the name/directory)
 	duplicate, err := checkForDuplicateServer(server.Name, server.Directory)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Failed checking if server is a duplicate: %s", err)
-		return
+		return c.String(http.StatusInternalServerError, "Failed checking if server is a duplicate: "+err.Error())
 	}
 
 	if duplicate {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Server with that name or folder already exists.")
-		return
+		return c.String(http.StatusBadRequest, "Server with that name or folder already exists.")
 	}
 
 	err = modifyServerEntry(server, id)
 	if err != nil {
-		fmt.Fprintf(w, "Failed updating server in database: %s", err)
+		return c.String(http.StatusInternalServerError, "Failed updating server in database: "+err.Error())
 	}
 	// TODO: Restart server somewhere
+
+	return c.String(http.StatusOK, "Server updated")
 }
 
 // POSTs
 
-func createServer(w http.ResponseWriter, r *http.Request) {
-	reqBody, _ := ioutil.ReadAll(r.Body)
+func createServer(c echo.Context) error {
+	reqBody, _ := ioutil.ReadAll(c.Request().Body)
 	var server requestServer
 	err := json.Unmarshal(reqBody, &server)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Unable to unmarshal json body: %s", err)
-		fmt.Printf(string(reqBody))
-		return
+		log.Info().Msg(string(reqBody))
+		return c.String(http.StatusBadRequest, "Unable to unmarshal json body: "+err.Error())
 	}
 
 	// TODO: Give a better explanation of what field is invalid
 	validServer := checkFieldLength(server)
 	if !validServer {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Field length too long.")
-		return
+		return c.String(http.StatusBadRequest, "Field length too long")
 	}
 
 	duplicate, err := checkForDuplicateServer(server.Name, server.Directory)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Unable to check if the given server exists: %s", err)
-		return
+		return c.String(http.StatusInternalServerError, "Unable to check if the given server exists: "+err.Error())
 	}
 
 	if duplicate {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Server already exists!")
-		return
+		return c.String(http.StatusBadRequest, "Server already exists!")
 	}
 
 	serverID, err := addServerToDatabase(server)
 	if err != nil {
-		fmt.Fprintf(w, "Failed to add server to database: %s", err)
+		return c.String(http.StatusInternalServerError, "Failed to add server to database: "+err.Error())
 	}
 
 	// TODO: Create server dir
 	// TODO: Write eula file to server dir
 
-	fmt.Fprintf(w, "%d", serverID)
+	return c.String(http.StatusOK, fmt.Sprintf("%d", serverID))
 }
 
 // DELETEs
 
-func removeServer(w http.ResponseWriter, r *http.Request) {
-	keys, ok := r.URL.Query()["id"]
+func removeServer(c echo.Context) error {
+	idStr := c.QueryParam("id")
 
-	if !ok || len(keys[0]) < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Url Param 'id' is missing")
-		return
-	}
+	// if !ok || len(keys[0]) < 1 {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
+	// 	return
+	// }
 
-	id, err := strconv.Atoi(keys[0])
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Unable to read ID: %s", err)
-		return
+		return c.String(http.StatusBadRequest, "Unable to read ID: "+err.Error())
 	}
 
 	temp, err := getSingleServerData(id)
 
 	// Might lead to hard to find bugs
 	if temp == nil || err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Server does not exist!")
-		return
+		return c.String(http.StatusNotFound, "Server does not exist!")
 	}
 
 	temp2 := runningServers.Find(id)
@@ -452,6 +409,8 @@ func removeServer(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: Rewrite for database
 	// servers.servers.Remove(servers.Find(id))
+
+	return c.String(http.StatusOK, "Server removed")
 }
 
 // Helpers

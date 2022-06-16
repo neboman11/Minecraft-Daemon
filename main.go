@@ -46,7 +46,7 @@ func main() {
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("Fatal error in config file: %s", err))
+		panic(fmt.Errorf("fatal error in config file: %s", err))
 	}
 	viper.Unmarshal(&config)
 

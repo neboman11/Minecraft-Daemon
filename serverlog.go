@@ -24,7 +24,7 @@ func (l *ServerLog) Init(stdout io.ReadCloser) *ServerLog {
 func NewServerLog(stdout io.ReadCloser) *ServerLog { return new(ServerLog).Init(stdout) }
 
 func (l ServerLog) readLog() {
-	buffer := make([]byte, 1024, 1024)
+	buffer := make([]byte, 1024)
 
 	for {
 		_, err := l.stdout.Read(buffer[:])
