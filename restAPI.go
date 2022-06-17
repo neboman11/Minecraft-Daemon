@@ -56,11 +56,9 @@ func homePage(c echo.Context) error {
 func showServerInfo(c echo.Context) error {
 	idStr := c.QueryParam("id")
 
-	// if !ok || len(keys[0]) < 1 {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
-	// 	return
-	// }
+	if len(idStr) < 1 {
+		return c.String(http.StatusBadRequest, "Url Param 'id' is missing")
+	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -83,11 +81,9 @@ func showServerInfo(c echo.Context) error {
 func startServer(c echo.Context) error {
 	idStr := c.QueryParam("id")
 
-	// if !ok || len(keys[0]) < 1 {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
-	// 	return
-	// }
+	if len(idStr) < 1 {
+		return c.String(http.StatusBadRequest, "Url Param 'id' is missing")
+	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -135,11 +131,9 @@ func startServer(c echo.Context) error {
 func stopServer(c echo.Context) error {
 	idStr := c.QueryParam("id")
 
-	// if !ok || len(keys[0]) < 1 {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
-	// 	return
-	// }
+	if len(idStr) < 1 {
+		return c.String(http.StatusBadRequest, "Url Param 'id' is missing")
+	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -167,11 +161,9 @@ func stopServer(c echo.Context) error {
 func showLog(c echo.Context) error {
 	idStr := c.QueryParam("id")
 
-	// if !ok || len(keys[0]) < 1 {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
-	// 	return
-	// }
+	if len(idStr) < 1 {
+		return c.String(http.StatusBadRequest, "Url Param 'id' is missing")
+	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -216,19 +208,15 @@ func listRunningServers(c echo.Context) error {
 func checkForDuplicateServerRequest(c echo.Context) error {
 	name := c.QueryParam("name")
 
-	// if !ok || len(nameKeys[0]) < 1 {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	fmt.Fprintf(w, "Url Param 'name' is missing")
-	// 	return
-	// }
+	if len(name) < 1 {
+		return c.String(http.StatusBadRequest, "Url Param 'name' is missing")
+	}
 
 	dir := c.QueryParam("directory")
 
-	// if !ok || len(dirKeys[0]) < 1 {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	fmt.Fprintf(w, "Url Param 'directory' is missing")
-	// 	return
-	// }
+	if len(dir) < 1 {
+		return c.String(http.StatusBadRequest, "Url Param 'directory' is missing")
+	}
 
 	duplicate, err := checkForDuplicateServer(name, dir)
 	if err != nil {
@@ -245,11 +233,9 @@ func checkForDuplicateServerRequest(c echo.Context) error {
 func checkForDuplicateServerNameRequest(c echo.Context) error {
 	name := c.QueryParam("name")
 
-	// if !ok || len(nameKeys[0]) < 1 {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	fmt.Fprintf(w, "Url Param 'name' is missing")
-	// 	return
-	// }
+	if len(name) < 1 {
+		return c.String(http.StatusBadRequest, "Url Param 'name' is missing")
+	}
 
 	duplicate, err := checkForDuplicateServerName(name)
 	if err != nil {
@@ -266,11 +252,9 @@ func checkForDuplicateServerNameRequest(c echo.Context) error {
 func checkForDuplicateServerDirRequest(c echo.Context) error {
 	dir := c.QueryParam("directory")
 
-	// if !ok || len(nameKeys[0]) < 1 {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	fmt.Fprintf(w, "Url Param 'directory' is missing")
-	// 	return
-	// }
+	if len(dir) < 1 {
+		return c.String(http.StatusBadRequest, "Url Param 'directory' is missing")
+	}
 
 	duplicate, err := checkForDuplicateServerDir(dir)
 	if err != nil {
@@ -289,11 +273,9 @@ func checkForDuplicateServerDirRequest(c echo.Context) error {
 func modifyServer(c echo.Context) error {
 	idStr := c.QueryParam("id")
 
-	// if !ok || len(keys[0]) < 1 {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
-	// 	return
-	// }
+	if len(idStr) < 1 {
+		return c.String(http.StatusBadRequest, "Url Param 'id' is missing")
+	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -375,11 +357,9 @@ func createServer(c echo.Context) error {
 func removeServer(c echo.Context) error {
 	idStr := c.QueryParam("id")
 
-	// if !ok || len(keys[0]) < 1 {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	fmt.Fprintf(w, "Url Param 'id' is missing")
-	// 	return
-	// }
+	if len(idStr) < 1 {
+		return c.String(http.StatusBadRequest, "Url Param 'id' is missing")
+	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
