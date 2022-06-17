@@ -24,7 +24,7 @@ jobs:
       - !CommandStep
         name: Test
         runInContainer: true
-        image: golang:1.18-alpine
+        image: golang:1.18
         interpreter: !DefaultInterpreter
           commands:
             - go test || true
