@@ -1,0 +1,55 @@
+version: 16
+jobs:
+- name: Build
+  steps:
+  - !CheckoutStep
+    name: Checkout Repo
+    cloneCredential: !DefaultCredential {}
+    withLfs: false
+    withSubmodules: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
+    name: Build
+    runInContainer: true
+    image: golang:1.18-alpine
+    interpreter: !DefaultInterpreter
+      commands:
+      - go build
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !PublishArtifactStep
+    name: Save Executable
+    artifacts: Minecraft-Daemon
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
+    name: Test
+    runInContainer: true
+    image: golang:1.18-alpine
+    interpreter: !DefaultInterpreter
+      commands:
+      - go test || true
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
+    name: Collect Code Coverage
+    runInContainer: true
+    image: golang:1.18-alpine
+    interpreter: !ShellInterpreter
+      shell: bash
+      commands:
+      - ./get_code_cov.sh
+      - curl -s https://codecov.io/bash | bash
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  triggers:
+  - !BranchUpdateTrigger
+    branches: master
+  retryCondition: never
+  maxRetries: 3
+  retryDelay: 30
+  cpuRequirement: 250
+  memoryRequirement: 256
+  timeout: 3600
+properties:
+- name: CODECOV_TOKEN
+  value: 5f5c6ae9-85f2-4a63-8219-69fef3151803
