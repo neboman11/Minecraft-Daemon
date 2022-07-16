@@ -21,12 +21,11 @@ type daemonConfig struct {
 }
 
 type databaseConfig struct {
-	Database         string
-	DatabaseHost     string
-	DatabasePort     int
-	DatabaseDatabase string
-	DatabaseUser     string
-	DatabasePassword string
+	Host     string
+	Port     int
+	Database string
+	User     string
+	Password string
 }
 
 type fileStoreConfig struct {

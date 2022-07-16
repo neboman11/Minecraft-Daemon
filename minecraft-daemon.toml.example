@@ -6,12 +6,11 @@ Port=10000
 ServerDir="servers"
 
 [Database]
-Database="mysql"
-DatabaseHost="localhost"
-DatabasePort=3306
-DatabaseDatabase="minecraft_daemon"
-DatabaseUser="minecraft"
-DatabasePassword="minecraft"
+Host="localhost"
+Port=3306
+Database="minecraft_daemon"
+User="minecraft"
+Password="minecraft"
 
 [Files]
 JarStore="jars"

@@ -65,7 +65,7 @@ func showServerInfo(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Unable to read ID: "+err.Error())
 	}
 
-	temp, err := getSingleServerData(id)
+	temp, err := getSingleServerData(c.Request().Context(), id)
 
 	// Might lead to hard to find bugs
 	if temp == nil || err != nil {
@@ -90,7 +90,18 @@ func startServer(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Unable to read ID: "+err.Error())
 	}
 
-	serverInfo, err := getSingleServerData(id)
+	temp, err := getSingleServerData(c.Request().Context(), id)
+
+	serverInfo := &responseServer{
+		temp.ID,
+		temp.Name,
+		temp.Directory,
+		temp.JarFile,
+		temp.RunMemory,
+		temp.StartMemory,
+		temp.JavaArgs.String,
+		getServerStatus(temp.ID),
+	}
 
 	// Might lead to hard to find bugs
 	if serverInfo == nil || err != nil {
@@ -341,7 +352,7 @@ func createServer(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Server already exists!")
 	}
 
-	serverID, err := addServerToDatabase(server)
+	serverID, err := addServerToDatabase(c.Request().Context(), server)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Failed to add server to database: "+err.Error())
 	}
@@ -366,7 +377,7 @@ func removeServer(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Unable to read ID: "+err.Error())
 	}
 
-	temp, err := getSingleServerData(id)
+	temp, err := getSingleServerData(c.Request().Context(), id)
 
 	// Might lead to hard to find bugs
 	if temp == nil || err != nil {
