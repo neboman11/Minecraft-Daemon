@@ -50,7 +50,10 @@ func main() {
 	viper.Unmarshal(&config)
 
 	// This should be done by an installer or initial script.
-	// databaseSetup()
+	err = setupDatabase()
+	if err != nil {
+		panic(err)
+	}
 
 	connectDatabase()
 
