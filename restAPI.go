@@ -103,7 +103,10 @@ func showLog(c echo.Context) error {
 }
 
 func listServers(c echo.Context) error {
-	servers := collectServerData(c.Request().Context())
+	servers, err := collectServerData(c.Request().Context())
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Unable to retrieve servers: "+err.Error())
+	}
 	if servers == nil {
 		return c.JSON(http.StatusOK, []responseServer{})
 	}

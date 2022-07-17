@@ -71,11 +71,11 @@ func addServerToDatabase(ctx context.Context, server requestServer) error {
 	return nil
 }
 
-func collectServerData(ctx context.Context) []responseServer {
+func collectServerData(ctx context.Context) ([]responseServer, error) {
 	var servers []databaseServer
 	err := db.NewSelect().Model(&servers).Scan(ctx)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 
 	var serverList []responseServer
@@ -93,7 +93,7 @@ func collectServerData(ctx context.Context) []responseServer {
 		serverList = append(serverList, server)
 	}
 
-	return serverList
+	return serverList, nil
 }
 
 // A duplicate server is defined by a server having either the same name or directory as another.
@@ -124,7 +124,6 @@ func modifyServerEntry(ctx context.Context, server requestServer, serverID int64
 }
 
 func getServerStatus(serverID int64) ServerStatus {
-	fmt.Printf("%v\n", runningServers)
 	server := runningServers.Find(serverID)
 	if server != nil {
 		return Running
