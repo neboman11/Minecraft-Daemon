@@ -69,12 +69,14 @@ func showServerInfo(c echo.Context) error {
 
 	temp, err := getSingleServerData(c.Request().Context(), id)
 
+	server := convertDBServerToResponseServer(temp)
+
 	// Might lead to hard to find bugs
 	if temp == nil || err != nil {
 		return c.String(http.StatusNotFound, "Server does not exist!")
 	}
 
-	return c.JSON(http.StatusOK, temp)
+	return c.JSON(http.StatusOK, server)
 }
 
 func showLog(c echo.Context) error {
@@ -340,4 +342,19 @@ func removeServer(c echo.Context) error {
 	removeServerFromDB(c.Request().Context(), id)
 
 	return c.String(http.StatusOK, "Server removed")
+}
+
+// Helpers
+
+func convertDBServerToResponseServer(dbServer *databaseServer) *responseServer {
+	return &responseServer{
+		ID:          dbServer.ID,
+		Name:        dbServer.Name,
+		Directory:   dbServer.Directory,
+		StartMemory: dbServer.StartMemory,
+		RunMemory:   dbServer.RunMemory,
+		JarFile:     dbServer.JarFile,
+		JavaArgs:    dbServer.JavaArgs,
+		Status:      getServerStatus(dbServer.ID),
+	}
 }

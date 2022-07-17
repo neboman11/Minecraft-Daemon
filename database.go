@@ -64,7 +64,7 @@ func getSingleServerData(ctx context.Context, id int64) (*databaseServer, error)
 }
 
 func addServerToDatabase(ctx context.Context, server requestServer) error {
-	_, err := db.NewInsert().Model(convertrequestServerToDBServer(server)).Exec(ctx)
+	_, err := db.NewInsert().Model(convertRequestServerToDBServer(server)).Exec(ctx)
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func removeServerFromDB(ctx context.Context, serverID int64) error {
 
 // Helpers
 
-func convertrequestServerToDBServer(server requestServer) *databaseServer {
+func convertRequestServerToDBServer(server requestServer) *databaseServer {
 	return &databaseServer{
 		Name:        server.Name,
 		Directory:   server.Directory,
