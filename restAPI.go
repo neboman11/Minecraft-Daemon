@@ -15,6 +15,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/net/websocket"
 )
 
 func handleRequests() {
@@ -30,6 +31,7 @@ func handleRequests() {
 	e.GET("/", homePage)
 	e.GET("/server", showServerInfo)
 	e.GET("/server/log", showLog)
+	e.GET("/server/interact", interact)
 	e.GET("/servers", listServers)
 	e.GET("/servers/running", listRunningServers)
 
@@ -112,6 +114,64 @@ func listServers(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, servers)
+}
+
+func interact(c echo.Context) error {
+	websocket.Handler(func(ws *websocket.Conn) {
+		defer ws.Close()
+		idStr := c.QueryParam("id")
+
+		if len(idStr) < 1 {
+			err := websocket.Message.Send(ws, "Url Param 'id' is missing")
+			if err != nil {
+				log.Error().Msgf("%s", err)
+				return
+			}
+		}
+
+		id, err := strconv.ParseInt(idStr, 10, 64)
+		if err != nil {
+			err := websocket.Message.Send(ws, "Unable to read ID: "+err.Error())
+			if err != nil {
+				log.Error().Msgf("%s", err)
+				return
+			}
+		}
+
+		temp := runningServers.Find(id)
+
+		if temp == nil {
+			err := websocket.Message.Send(ws, "Server is not running!")
+			if err != nil {
+				log.Error().Msgf("%s", err)
+				return
+			}
+			return
+		}
+		serverInfo := temp.Value.(runningServer)
+
+		go func() {
+			serverLog := serverInfo.Log.getLog()
+			err = websocket.Message.Send(ws, serverLog)
+			if err != nil {
+				log.Error().Msgf("%s", err)
+				return
+			}
+		}()
+
+		for {
+			// Read
+			msg := ""
+			err = websocket.Message.Receive(ws, &msg)
+			if err != nil {
+				log.Error().Msgf("%s", err)
+				return
+			}
+			log.Trace().Msgf("%s", msg)
+			serverInfo.Stdin.Write([]byte(msg + "\n"))
+		}
+	}).ServeHTTP(c.Response(), c.Request())
+	return nil
 }
 
 func listRunningServers(c echo.Context) error {
