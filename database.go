@@ -88,6 +88,7 @@ func collectServerData(ctx context.Context) ([]responseServer, error) {
 			dbServer.RunMemory,
 			dbServer.StartMemory,
 			dbServer.JavaArgs,
+			dbServer.Restart,
 			getServerStatus(dbServer.ID),
 		}
 		serverList = append(serverList, server)

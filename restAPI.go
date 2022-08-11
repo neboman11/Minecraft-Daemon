@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 	"path"
 	"strconv"
 
@@ -100,7 +99,7 @@ func showLog(c echo.Context) error {
 	}
 	serverInfo := temp.Value.(runningServer)
 
-	return c.String(http.StatusOK, serverInfo.Log.getLog())
+	return c.String(http.StatusOK, serverInfo.Log.GetLog())
 }
 
 func listServers(c echo.Context) error {
@@ -150,15 +149,14 @@ func interact(c echo.Context) error {
 		serverInfo := temp.Value.(runningServer)
 
 		go func() {
-			serverLog := serverInfo.Log.getLog()
+			serverLog := serverInfo.Log.GetLog()
 			err = websocket.Message.Send(ws, serverLog)
 			if err != nil {
 				log.Error().Msgf("%s", err)
 				return
 			}
-			logChannel := serverInfo.Log.getLogChannel()
-			for {
-				serverLog = <-logChannel
+			logChannel := serverInfo.Log.GetLogChannel()
+			for serverLog := range logChannel {
 				err = websocket.Message.Send(ws, serverLog)
 				if err != nil {
 					log.Error().Msgf("%s", err)
@@ -198,9 +196,7 @@ func listRunningServers(c echo.Context) error {
 
 // PUTs
 
-// TODO: Break actual server starting code to separate function
 // TODO: Add writing output of exec to file to catch output of server that fails before it starts writing to the log
-// TODO: Add way of checking if server is still alive and produce errors, warnings, and other output, and remove it from the list of running servers if it exits outside stopServer()
 func startServer(c echo.Context) error {
 	idStr := c.QueryParam("id")
 
@@ -225,32 +221,7 @@ func startServer(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Server jar file does not exist!")
 	}
 
-	var cmd *exec.Cmd
-
-	if len(serverInfo.JavaArgs) > 0 {
-		cmd = exec.Command(config.Daemon.JavaPath, "-Xmx"+serverInfo.RunMemory, "-Xms"+serverInfo.StartMemory, serverInfo.JavaArgs, "-jar", serverInfo.JarFile, "nogui")
-	} else {
-		cmd = exec.Command(config.Daemon.JavaPath, "-Xmx"+serverInfo.RunMemory, "-Xms"+serverInfo.StartMemory, "-jar", serverInfo.JarFile, "nogui")
-	}
-
-	cmd.Dir = serverInfo.Directory
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		log.Error().Msgf("%s", err)
-	}
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		log.Error().Msgf("%s", err)
-	}
-	if err = cmd.Start(); err != nil {
-		log.Error().Msgf("%s", err)
-	}
-
-	log := NewServerLog(stdout)
-
-	runningServers.servers.PushBack(runningServer{id, stdin, log})
-
-	go log.readLog()
+	execServer(id, serverInfo)
 
 	return c.NoContent(http.StatusOK)
 }

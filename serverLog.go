@@ -38,7 +38,10 @@ func (l ServerLog) readLog() {
 
 		l.Log.PushBack(line)
 		l.Len++
-		l.channel <- line
+		select {
+		case l.channel <- line:
+		default:
+		}
 
 		if l.Len > 100 {
 			l.Log.Remove(l.Log.Front())
@@ -47,7 +50,7 @@ func (l ServerLog) readLog() {
 	}
 }
 
-func (l ServerLog) getLog() string {
+func (l ServerLog) GetLog() string {
 	var log string
 
 	for e := l.Log.Front(); e != nil; e = e.Next() {
@@ -71,6 +74,6 @@ func trimNewLine(s []byte) string {
 	return line
 }
 
-func (l ServerLog) getLogChannel() chan string {
+func (l ServerLog) GetLogChannel() chan string {
 	return l.channel
 }

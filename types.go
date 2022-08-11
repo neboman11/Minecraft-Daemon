@@ -1,7 +1,6 @@
 package main
 
 import (
-	"container/list"
 	"io"
 
 	"github.com/uptrace/bun"
@@ -24,6 +23,7 @@ type databaseServer struct {
 	RunMemory   string `bun:"run_memory,notnull"`
 	StartMemory string `bun:"start_memory,notnull"`
 	JavaArgs    string `bun:"java_args"`
+	Restart     bool   `bun:"restart,notnull"`
 }
 
 type responseServer struct {
@@ -34,6 +34,7 @@ type responseServer struct {
 	RunMemory   string       `json:"run_memory"`
 	StartMemory string       `json:"start_memory"`
 	JavaArgs    string       `json:"java_args"`
+	Restart     bool         `json:"restart"`
 	Status      ServerStatus `json:"status"`
 }
 
@@ -47,21 +48,8 @@ type requestServer struct {
 }
 
 type runningServer struct {
-	ID    int64
-	Stdin io.WriteCloser
-	Log   *ServerLog
-}
-
-type runningServerList struct {
-	servers *list.List
-}
-
-func (l runningServerList) Find(i int64) *list.Element {
-	for e := l.servers.Front(); e != nil; e = e.Next() {
-		if e.Value.(runningServer).ID == i {
-			return e
-		}
-	}
-
-	return nil
+	ID      int64
+	Stdin   io.WriteCloser
+	Log     *ServerLog
+	Restart bool
 }
