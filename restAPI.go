@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -157,6 +156,15 @@ func interact(c echo.Context) error {
 				log.Error().Msgf("%s", err)
 				return
 			}
+			logChannel := serverInfo.Log.getLogChannel()
+			for {
+				serverLog = <-logChannel
+				err = websocket.Message.Send(ws, serverLog)
+				if err != nil {
+					log.Error().Msgf("%s", err)
+					return
+				}
+			}
 		}()
 
 		for {
@@ -292,7 +300,7 @@ func modifyServer(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Unable to read ID: "+err.Error())
 	}
 
-	reqBody, _ := ioutil.ReadAll(c.Request().Body)
+	reqBody, _ := io.ReadAll(c.Request().Body)
 	var server requestServer
 	err = json.Unmarshal(reqBody, &server)
 	if err != nil {
@@ -330,7 +338,7 @@ func modifyServer(c echo.Context) error {
 // POSTs
 
 func createServer(c echo.Context) error {
-	reqBody, _ := ioutil.ReadAll(c.Request().Body)
+	reqBody, _ := io.ReadAll(c.Request().Body)
 	var server requestServer
 	err := json.Unmarshal(reqBody, &server)
 	if err != nil {

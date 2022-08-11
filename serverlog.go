@@ -7,16 +7,18 @@ import (
 
 // ServerLog is the last 100 lines of the server's log
 type ServerLog struct {
-	ID     int
-	Len    int
-	Log    *list.List
-	stdout io.ReadCloser
+	ID      int
+	Len     int
+	Log     *list.List
+	stdout  io.ReadCloser
+	channel chan string
 }
 
 // Init initializes or clears list l.
 func (l *ServerLog) Init(stdout io.ReadCloser) *ServerLog {
 	l.Log = list.New()
 	l.stdout = stdout
+	l.channel = make(chan string)
 	return l
 }
 
@@ -36,6 +38,7 @@ func (l ServerLog) readLog() {
 
 		l.Log.PushBack(line)
 		l.Len++
+		l.channel <- line
 
 		if l.Len > 100 {
 			l.Log.Remove(l.Log.Front())
@@ -66,4 +69,8 @@ func trimNewLine(s []byte) string {
 	}
 
 	return line
+}
+
+func (l ServerLog) getLogChannel() chan string {
+	return l.channel
 }
