@@ -163,6 +163,7 @@ func interact(c echo.Context) error {
 					return
 				}
 			}
+			err = websocket.Message.Send(ws, "Server has stopped")
 		}()
 
 		for {
@@ -288,13 +289,15 @@ func modifyServer(c echo.Context) error {
 	}
 
 	// TODO: Add ability to ignore a specific server (for updating a server without changing the name/directory)
-	duplicate, err := getServerByDirectory(c.Request().Context(), server.Directory)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Failed checking if server is a duplicate: "+err.Error())
-	}
+	if server.Directory != temp.Directory {
+		duplicate, err := getServerByDirectory(c.Request().Context(), server.Directory)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, "Failed checking if server is a duplicate: "+err.Error())
+		}
 
-	if duplicate != nil && duplicate.ID != id {
-		return c.String(http.StatusBadRequest, "Server with that name or folder already exists.")
+		if duplicate != nil && duplicate.ID != id {
+			return c.String(http.StatusBadRequest, "Server with that folder already exists.")
+		}
 	}
 
 	err = modifyServerEntry(c.Request().Context(), server, id)
@@ -397,6 +400,7 @@ func convertDBServerToResponseServer(dbServer *databaseServer) *responseServer {
 		RunMemory:   dbServer.RunMemory,
 		JarFile:     dbServer.JarFile,
 		JavaArgs:    dbServer.JavaArgs,
+		Restart:     dbServer.Restart,
 		Status:      getServerStatus(dbServer.ID),
 	}
 }

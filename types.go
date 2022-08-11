@@ -45,6 +45,7 @@ type requestServer struct {
 	RunMemory   string `json:"run_memory"`
 	StartMemory string `json:"start_memory"`
 	JavaArgs    string `json:"java_args"`
+	Restart     bool   `json:"restart"`
 }
 
 type runningServer struct {

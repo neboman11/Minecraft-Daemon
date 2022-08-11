@@ -163,6 +163,7 @@ func convertRequestServerToDBServerWithID(server requestServer, id int64) *datab
 		RunMemory:   server.RunMemory,
 		StartMemory: server.StartMemory,
 		JavaArgs:    server.JavaArgs,
+		Restart:     server.Restart,
 	}
 }
 
