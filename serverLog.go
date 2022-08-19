@@ -54,7 +54,7 @@ func (l ServerLog) GetLog() string {
 	var log string
 
 	for e := l.Log.Front(); e != nil; e = e.Next() {
-		log += string(e.Value.(string))
+		log += string(e.Value.(string)) + "\n"
 	}
 
 	return log
@@ -64,11 +64,11 @@ func trimNewLine(s []byte) string {
 	line := ""
 
 	for i := 0; i < len(s); i++ {
-		line += string(s[i])
-
 		if s[i] == '\n' {
 			break
 		}
+
+		line += string(s[i])
 	}
 
 	return line

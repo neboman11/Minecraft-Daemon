@@ -37,7 +37,7 @@ jobs:
         interpreter: !ShellInterpreter
           shell: bash
           commands:
-            - ./get_code_cov.sh
+            - go test -race -covermode=atomic -coverprofile=coverage.out
             - curl -s https://codecov.io/bash | bash
         useTTY: false
         condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
