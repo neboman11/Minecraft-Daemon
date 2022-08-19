@@ -182,13 +182,13 @@ func interact(c echo.Context) error {
 }
 
 func listRunningServers(c echo.Context) error {
-	if runningServers.servers.Len() == 0 {
+	if runningServers.Length() == 0 {
 		return c.String(http.StatusOK, "[]")
 	}
 
 	var temp []int64
 
-	for e := runningServers.servers.Front(); e != nil; e = e.Next() {
+	for e := runningServers.Front(); e != nil; e = e.Next() {
 		temp = append(temp, e.Value.(runningServer).ID)
 	}
 
@@ -253,7 +253,7 @@ func stopServer(c echo.Context) error {
 		io.WriteString(stdin, "stop\n")
 	}()
 
-	runningServers.servers.Remove(temp)
+	runningServers.Remove(id)
 
 	return c.NoContent(http.StatusOK)
 }
@@ -381,7 +381,7 @@ func removeServer(c echo.Context) error {
 			io.WriteString(stdin, "stop\n")
 		}()
 
-		runningServers.servers.Remove(temp2)
+		runningServers.Remove(id)
 	}
 
 	removeServerFromDB(c.Request().Context(), id)

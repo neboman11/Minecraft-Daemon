@@ -30,7 +30,7 @@ func execServer(id int64, serverInfo *databaseServer) {
 
 	log := NewServerLog(stdout)
 
-	runningServers.servers.PushBack(runningServer{id, stdin, log, serverInfo.Restart})
+	runningServers.Add(id, stdin, log, serverInfo.Restart)
 
 	go monitorServer(id, log, serverInfo)
 }
