@@ -31,7 +31,7 @@ jobs:
             - go test -race -covermode=atomic -coverprofile=coverage.out
             - curl -Os https://uploader.codecov.io/latest/linux/codecov
             - chmod +x codecov
-            - ./codecov -f coverage.out
+            - CODECOV_TOKEN=5f5c6ae9-85f2-4a63-8219-69fef3151803 ./codecov -f coverage.out
         useTTY: false
         condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
     triggers:
@@ -43,6 +43,3 @@ jobs:
     cpuRequirement: 250
     memoryRequirement: 256
     timeout: 3600
-properties:
-  - name: CODECOV_TOKEN
-    value: 5f5c6ae9-85f2-4a63-8219-69fef3151803
