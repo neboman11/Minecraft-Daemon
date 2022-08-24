@@ -24,7 +24,7 @@ jobs:
       - !CommandStep
         name: Test
         runInContainer: true
-        image: golang:1.18-alpine
+        image: golang:1.18
         interpreter: !DefaultInterpreter
           commands:
             - go test || true
@@ -40,7 +40,7 @@ jobs:
             - go test -race -covermode=atomic -coverprofile=coverage.out
             - curl -Os https://uploader.codecov.io/latest/linux/codecov
             - chmod +x codecov
-            - ./codecov
+            - ./codecov -f coverage.out
         useTTY: false
         condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
     triggers:
