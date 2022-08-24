@@ -22,18 +22,9 @@ jobs:
         artifacts: Minecraft-Daemon
         condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
       - !CommandStep
-        name: Test
+        name: Test and Collect Code Coverage
         runInContainer: true
         image: golang:1.18
-        interpreter: !DefaultInterpreter
-          commands:
-            - go test || true
-        useTTY: false
-        condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
-      - !CommandStep
-        name: Collect Code Coverage
-        runInContainer: true
-        image: gcc:12
         interpreter: !ShellInterpreter
           shell: bash
           commands:
