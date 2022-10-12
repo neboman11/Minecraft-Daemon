@@ -3,7 +3,7 @@ module github.com/neboman11/Minecraft-Daemon
 go 1.18
 
 require (
-	github.com/labstack/echo/v4 v4.7.2
+	github.com/labstack/echo/v4 v4.9.0
 	github.com/rs/zerolog v1.27.0
 	github.com/spf13/viper v1.12.0
 	github.com/uptrace/bun v1.1.6
