@@ -6,7 +6,7 @@ require (
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/rs/zerolog v1.29.0
 	github.com/spf13/viper v1.15.0
-	github.com/uptrace/bun v1.1.6
+	github.com/uptrace/bun v1.1.12
 	github.com/uptrace/bun/dialect/pgdialect v1.1.6
 	github.com/uptrace/bun/driver/pgdriver v1.1.6
 	golang.org/x/net v0.8.0
@@ -19,8 +19,8 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
