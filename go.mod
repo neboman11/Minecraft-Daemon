@@ -7,7 +7,7 @@ require (
 	github.com/rs/zerolog v1.29.1
 	github.com/spf13/viper v1.15.0
 	github.com/uptrace/bun v1.1.13
-	github.com/uptrace/bun/dialect/pgdialect v1.1.12
+	github.com/uptrace/bun/dialect/pgdialect v1.1.13
 	github.com/uptrace/bun/driver/pgdriver v1.1.13
 	golang.org/x/net v0.9.0
 )
