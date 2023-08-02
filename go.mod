@@ -9,7 +9,7 @@ require (
 	github.com/uptrace/bun v1.1.14
 	github.com/uptrace/bun/dialect/pgdialect v1.1.14
 	github.com/uptrace/bun/driver/pgdriver v1.1.14
-	golang.org/x/net v0.12.0
+	golang.org/x/net v0.13.0
 )
 
 require (
